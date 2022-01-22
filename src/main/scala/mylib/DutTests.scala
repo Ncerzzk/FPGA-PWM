@@ -44,10 +44,19 @@ object DutTests {
         scl.write(false)
         sleep_half_period
       }
+      def stop()={
+        sda.write(false)
+        sleep_half_period
+        scl.write(true)
+        sleep_half_period
+        sda.write(true)
+        sleep_half_period
+      }
 
       def ack()={
         sda.write(false)
         i2c_cycle
+        sda.write(true)
       }
 
       def master_send_byte(data:Int): Unit ={
@@ -90,13 +99,18 @@ object DutTests {
       fork {
         waitUntil(dut.a.init.ok.toBoolean)
         i2cbus.start()
+        i2cbus.master_send_byte(0x31)
+        i2cbus.stop()
+        i2cbus.start()
         i2cbus.master_send_byte(0x41)
         i2cbus.master_send_byte(0x01)
         val byte1 = i2cbus.master_read_byte()
         i2cbus.ack()
         val byte2 = i2cbus.master_read_byte()
+        i2cbus.ack()
 
-        print(f"recv $byte1%x")
+        println(f"recv $byte1%x")
+        println(f"recv $byte2%x")
       }.join()
     }
 
@@ -109,7 +123,7 @@ object DutTests {
         i2cbus.start()
         sleep_half_period
         i2cbus.master_send_byte(0x40)
-        i2cbus.master_send_byte(0x02)
+        i2cbus.master_send_byte(0x00)
         i2cbus.master_send_byte(0xff)
         i2cbus.master_send_byte(0xbb)
       }.join()
