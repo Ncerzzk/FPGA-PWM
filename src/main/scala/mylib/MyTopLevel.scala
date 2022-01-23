@@ -18,6 +18,7 @@
 
 package mylib
 
+import mylib.I2CRegs.interrupt.txAckEnable
 import spinal.core._
 import spinal.lib._
 import spinal.lib.bus.amba3.apb._
@@ -50,6 +51,7 @@ object I2CRegs{
     val endEnable=1<<6
     val dropEnable=1<<7
     val startEnable=1<<4
+    val restartEnable=1<<5
   }
 
 }
@@ -109,6 +111,7 @@ class PWM extends Component{
     val ok = apb.PENABLE
     val result = Reg(cloneOf(apb.PRDATA)).init(0)
     val state = RegInit(U"00")
+    val int_using=False
 
     apb.PSEL := 1
     apb.PADDR := 0
@@ -129,6 +132,7 @@ class PWM extends Component{
     when(state===1 && !apb.PWRITE){
       result := apb.PRDATA
     }
+
   }
 
   def read(addr:UInt)(block: => Unit):Unit={
@@ -166,14 +170,15 @@ class PWM extends Component{
     switch(int_ctrl_state){
       is(1){
         read(I2CRegs.interruptFlag){
-          end_flag :=apb_operate_area.result(4 to 7).orR
-          common_int := !end_flag
+
           int_ctrl_state := 2
         }
       }
       is(2){
         write(I2CRegs.interruptFlag,0xFFFF){
           int_ctrl_state :=0
+          end_flag :=apb_operate_area.result(4 to 7).orR  // start restart end drop
+          common_int := !end_flag
         }
       }
     }
@@ -181,7 +186,7 @@ class PWM extends Component{
 
   def interrupt_set(config:Int)(block: =>Unit)={
     import I2CRegs.interrupt._
-    write(I2CRegs.interruptConfig,startEnable| endEnable | dropEnable | config)(block)
+    write(I2CRegs.interruptConfig,restartEnable | startEnable| endEnable | dropEnable | config)(block)
   }
 
   val init = new Area{
@@ -195,7 +200,6 @@ class PWM extends Component{
         write(timeout,0xFFFFF),
         write(tsuDat,2),
         write(filteringConfig_0,0x20 | (1<<15)), //address0 = 0x20,
-        interrupt_set(txAckEnable),
         _ => ok:=True
       ),
       state
@@ -320,11 +324,13 @@ class PWM extends Component{
         whenIsActive{
           Seq_Area(
             List(
+              interrupt_set(txAckEnable),
               when(int_ctrl.common_int),
               activate_tx_ack,
-              block=>write(I2CRegs.interruptConfig,I2CRegs.interrupt.rxDataEnable){
-                goto(hit)
-                block
+              _ =>{
+                interrupt_set(I2CRegs.interrupt.rxDataEnable){
+                  goto(hit)
+                }
               }
             ),
             idle_state
@@ -398,19 +404,24 @@ class PWM extends Component{
               }
             }
             is(1){
-              master_drive.start(True){
-                hit_state:=2
-                reg_choose.addr := master_drive.byte.asUInt
-              }
-            }
-            is(2){
-              when(!hit_context){
-                goto(master_write)
-              }otherwise{
+              when(hit_context === True){
                 goto(master_read)
+              }otherwise{
+                master_drive.start(True){
+                  //hit_state:=2
+                  reg_choose.addr := master_drive.byte.asUInt
+                  goto(master_write)
+                }
               }
-
             }
+//            is(2){
+//              when(!hit_context){
+//                goto(master_write)
+//              }otherwise{
+//                goto(master_read)
+//              }
+//
+//            }
           }
 
         }
@@ -424,6 +435,7 @@ class PWM extends Component{
 class MyTopLevel extends Component {
 
   val i2c = master(I2c())
+  val ch1_out = out Bool()
   val i2c_apb=new Apb3I2cCtrl(
     I2cSlaveMemoryMappedGenerics(
       ctrlGenerics = I2cSlaveGenerics(
@@ -434,11 +446,12 @@ class MyTopLevel extends Component {
       addressFilterCount = 1
     )
   )
-  val a = new PWM()
-  a.apb <> i2c_apb.io.apb
 
+  val pwm = new PWM()
+  pwm.apb <> i2c_apb.io.apb
+  ch1_out := pwm.pwm_out.ch1
 
-  a.int := i2c_apb.io.interrupt
+  pwm.int := i2c_apb.io.interrupt
   i2c <> i2c_apb.io.i2c
 
 }
@@ -461,11 +474,11 @@ object MyTopLevelVhdl {
 
 
 //Define a custom SpinalHDL configuration with synchronous reset instead of the default asynchronous one. This configuration can be resued everywhere
-object MySpinalConfig extends SpinalConfig(defaultConfigForClockDomains = ClockDomainConfig(resetKind = SYNC))
+object MySpinalConfig extends SpinalConfig(defaultConfigForClockDomains = ClockDomainConfig(resetKind = ASYNC,resetActiveLevel = LOW))
 
 //Generate the MyTopLevel's Verilog using the above custom configuration.
 object MyTopLevelVerilogWithCustomConfig {
   def main(args: Array[String]) {
-    MySpinalConfig.generateVerilog(new MyTopLevel)
+    MySpinalConfig.generateVerilog(InOutWrapper(new MyTopLevel))
   }
 }
