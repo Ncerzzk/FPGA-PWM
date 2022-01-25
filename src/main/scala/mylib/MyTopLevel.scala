@@ -18,7 +18,7 @@
 
 package mylib
 
-import mylib.I2CRegs.interrupt.txAckEnable
+import mylib.I2CRegs.interrupt._
 import spinal.core._
 import spinal.lib._
 import spinal.lib.bus.amba3.apb._
@@ -110,8 +110,9 @@ class PWM extends Component{
   val apb_operate_area = new Area{
     val ok = apb.PENABLE
     val result = Reg(cloneOf(apb.PRDATA)).init(0)
-    val state = RegInit(U"00")
+    val operating = RegInit(False)
     val int_using=False
+    val active=False
 
     apb.PSEL := 1
     apb.PADDR := 0
@@ -119,44 +120,49 @@ class PWM extends Component{
     apb.PWRITE := False
     apb.PENABLE := False
 
-    switch(state){
-      is(1){
-        state :=2
-      }
-      is(2){
-        state :=0
-      }
-    }
-    apb.PENABLE.setWhen(state === 2)
+    operating.toggleWhen(active)
 
-    when(state===1 && !apb.PWRITE){
+    apb.PENABLE.setWhen(active && operating)
+
+    when(active && !operating && !apb.PWRITE){
       result := apb.PRDATA
     }
-
   }
 
-  def read(addr:UInt)(block: => Unit):Unit={
+  def read(addr:UInt,high_priority:Boolean=false)(block: => Unit):Unit={
     apb.PADDR := addr.resized
     apb.PWRITE := False
-    when(apb_operate_area.state === 0){
-      apb_operate_area.state := 1
-    }
-    when(apb_operate_area.ok){
-      block
+    apb_operate_area.active := True
+    if(high_priority){
+      apb_operate_area.int_using := True
+      when(apb_operate_area.ok){
+        block
+      }
+    }else{
+      when(apb_operate_area.ok && !apb_operate_area.int_using){
+        block
+      }
     }
   }
-  def write(addr:UInt,data:Bits)(block: => Unit):Unit={
+  def write(addr:UInt,data:Bits,high_priority:Boolean=false)(block: => Unit):Unit={
     apb.PADDR := addr.resized
     apb.PWDATA := data.resized
     apb.PWRITE := True
 
-    when(apb_operate_area.state === 0){
-      apb_operate_area.state := 1
+    apb_operate_area.active := True
+
+    if(high_priority){
+      apb_operate_area.int_using := True
+      when(apb_operate_area.ok){
+        block
+      }
+    }else{
+      when(apb_operate_area.ok && !apb_operate_area.int_using){
+        block
+      }
     }
-    when(apb_operate_area.ok){
-      block
-    }
-  }
+
+ }
 
   val int_ctrl=new Area{
     val int_ctrl_state= RegInit(U"00")
@@ -169,13 +175,12 @@ class PWM extends Component{
 
     switch(int_ctrl_state){
       is(1){
-        read(I2CRegs.interruptFlag){
-
+        read(I2CRegs.interruptFlag,high_priority = true){
           int_ctrl_state := 2
         }
       }
       is(2){
-        write(I2CRegs.interruptFlag,0xFFFF){
+        write(I2CRegs.interruptFlag,0xFFFF,high_priority = true ){
           int_ctrl_state :=0
           end_flag :=apb_operate_area.result(4 to 7).orR  // start restart end drop
           common_int := !end_flag
@@ -248,12 +253,11 @@ class PWM extends Component{
       }
       when(active){
         Seq_Area(List(
-          listen_rx_data,
+          interrupt_set(txAckEnable),
+          activate_tx_nack,
           tx_data(data),
           when(int_ctrl.common_int),
           read(I2CRegs.rxData),
-          activate_tx_nack,
-          //deactivate_tx_ack,
           block=>{
             finish := True
             block
@@ -269,27 +273,21 @@ class PWM extends Component{
       val byte=Bits(8 bits)
       val finish=False
       val state:UInt = RegInit(U"0000")
-      val need_ack=True
 
       byte := apb_operate_area.result.resized
-      def start(ack:Bool = True)(block: => Unit)={
+      def start(block: => Unit)={
         active := True
-        need_ack:=ack
         when(finish)(block)
       }
 
       when(active){
         Seq_Area(
           List(
-            listen_rx_data,
-            when(int_ctrl.common_int),
+            interrupt_set(txAckEnable),
             block => {
-              when(need_ack){
-                activate_tx_ack{block}
-              }otherwise{
-                activate_tx_nack{block}
-              }
+              activate_tx_ack{block}
             },
+            when(int_ctrl.common_int),
             read(I2CRegs.rxData),
             block => {
               finish :=True
@@ -302,8 +300,13 @@ class PWM extends Component{
     }
 
     val fsm = new StateMachine{
+      val idle_state = RegInit(U"0000")
+
       always{
         when(int_ctrl.end_flag){
+          idle_state:=0
+          master_drive.state :=0
+          slave_drive.state :=0
           goto(idle)
         }
       }
@@ -316,21 +319,21 @@ class PWM extends Component{
         }
       }
       val idle:State = new State{
-
-        val idle_state = RegInit(U"000")
         onEntry{
           idle_state := 0
         }
         whenIsActive{
           Seq_Area(
             List(
+              activate_tx_nack,   // to set tx_ack_valid to high(clear the tx ack interrupt)
               interrupt_set(txAckEnable),
               when(int_ctrl.common_int),
               activate_tx_ack,
-              _ =>{
-                interrupt_set(I2CRegs.interrupt.rxDataEnable){
-                  goto(hit)
-                }
+              when(int_ctrl.common_int),
+              activate_tx_nack,
+              block =>{
+                goto(hit)
+                block
               }
             ),
             idle_state
@@ -347,13 +350,13 @@ class PWM extends Component{
         whenIsActive{
           switch(write_state){
             is(0){
-              master_drive.start(True){
+              master_drive.start{
                 write_state:=1
                 reg_temp.takeHigh(8) := master_drive.byte
               }
             }
             is(1){
-              master_drive.start(False){
+              master_drive.start{
                 reg_temp.takeLow(8) :=master_drive.byte
                 write_state :=2
               }
@@ -395,7 +398,7 @@ class PWM extends Component{
           hit_state :=  0
           hit_context := False
         }
-        whenIsActive {
+        whenIsActive{
           switch(hit_state){
             is(0){
               read(I2CRegs.hitContext){
@@ -407,21 +410,13 @@ class PWM extends Component{
               when(hit_context === True){
                 goto(master_read)
               }otherwise{
-                master_drive.start(True){
+                master_drive.start{
                   //hit_state:=2
                   reg_choose.addr := master_drive.byte.asUInt
                   goto(master_write)
                 }
               }
             }
-//            is(2){
-//              when(!hit_context){
-//                goto(master_write)
-//              }otherwise{
-//                goto(master_read)
-//              }
-//
-//            }
           }
 
         }
