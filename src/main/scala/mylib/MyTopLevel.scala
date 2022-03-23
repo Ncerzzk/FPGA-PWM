@@ -26,6 +26,9 @@ import spinal.lib.com.i2c._
 import spinal.lib.fsm._
 import spinal.lib.io.InOutWrapper
 
+import scala.collection.immutable
+import scala.collection.mutable.ListBuffer
+
 
 
 object I2CRegs{
@@ -40,6 +43,7 @@ object I2CRegs{
   val timeout=0x2C
   val tsuDat=0x30
   val filteringConfig_0=0x88
+  val hitOrNot=0x80
 
 
   object interrupt{
@@ -83,11 +87,14 @@ object Seq_Area{
   }
 }
 
-class PWM extends Component{
+class PWM(channel_num:Int=4) extends Component{
   val apb = master(Apb3(Apb3I2cCtrl.getApb3Config))
   val int = in Bool()
   val pwm_out= new Bundle{
-    val ch1 = out Bool()
+    for(i<-0 until channel_num){
+      valCallback(out Bool(),"ch"+(i+1).toString)
+    }
+    //val ch1 = out Bool()
     //val ch2 = out Bool()
     //val ch3 = out Bool()
     //val ch4 = out Bool()
@@ -97,13 +104,26 @@ class PWM extends Component{
 
     val counter = Reg(UInt(16 bits)).init(0)
     val period = Reg(UInt(16 bits)).init(2000)
-    val ccr1 = Reg(UInt(16 bits)).init(1000)
+    //val ccr1 = Reg(UInt(16 bits)).init(1000)
+    val ccrs = List.fill(pwm_out.elements.length)(Reg(UInt(16 bits)).init(1000))
+
+    def regs: immutable.Seq[(Int, UInt)] ={
+      val temp_list = ListBuffer(0->period)
+      for(i <- 1 to ccrs.length){
+        temp_list.append(i -> ccrs(i-1))
+      }
+      temp_list.toList
+    }
 
     counter := counter+1
     when(counter === period){
       counter := 0
     }
-    pwm_out.ch1 := counter < ccr1
+
+    for( ((name,ref),ccr) <- pwm_out.elements zip ccrs){
+      ref:= counter < ccr
+    }
+    //pwm_out.ch1 := counter < ccr1
   }
 
 
@@ -219,7 +239,8 @@ class PWM extends Component{
     def tx_data(data:Bits)(block: =>Unit)=write(I2CRegs.txData,3<<8|data.resized)(block)
 
     val reg_choose=new Area{
-      val regs=List(0->pwm_area.period,1->pwm_area.ccr1)
+      //val regs=List(0->pwm_area.period,1->pwm_area.ccr1)
+      val regs=pwm_area.regs
       val addr = Reg(UInt(8 bits)).init(0)
       val read=addr.muxList(U(0),regs)
 
@@ -328,6 +349,15 @@ class PWM extends Component{
               activate_tx_nack,   // to set tx_ack_valid to high(clear the tx ack interrupt)
               interrupt_set(txAckEnable),
               when(int_ctrl.common_int),
+              block => {
+                read(I2CRegs.hitOrNot){
+                  when(apb_operate_area.result.lsb){
+                    block
+                  }otherwise{
+                    idle_state := 0
+                  }
+                }
+              },
               activate_tx_ack,
               when(int_ctrl.common_int),
               activate_tx_nack,
@@ -430,7 +460,12 @@ class PWM extends Component{
 class MyTopLevel extends Component {
 
   val i2c = master(I2c())
-  val ch1_out = out Bool()
+  //val ch1_out = out Bool()
+  val pwm = new PWM()
+  val pwm_ch_out=pwm.pwm_out.clone()
+  for (i <- pwm_ch_out.elements){
+    i._2.asOutput()
+  }
   val i2c_apb=new Apb3I2cCtrl(
     I2cSlaveMemoryMappedGenerics(
       ctrlGenerics = I2cSlaveGenerics(
@@ -442,9 +477,10 @@ class MyTopLevel extends Component {
     )
   )
 
-  val pwm = new PWM()
+
   pwm.apb <> i2c_apb.io.apb
-  ch1_out := pwm.pwm_out.ch1
+  pwm_ch_out := pwm.pwm_out
+  //ch1_out := pwm.pwm_out.elements(0)._2.as(Bool)
 
   pwm.int := i2c_apb.io.interrupt
   i2c <> i2c_apb.io.i2c

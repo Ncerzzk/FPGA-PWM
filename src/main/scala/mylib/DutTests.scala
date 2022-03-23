@@ -144,6 +144,23 @@ object DutTests {
         }.join()
     }
 
+    compile.doSim("not call you"){
+      dut=>
+        val i2cbus=I2C_SimBus(dut.i2c,100 kHz,50 MHz)
+        dut.clockDomain.forkStimulus(period=2)
+        import dut.pwm.ctrl.fsm._
+        forkSensitive(stateReg.toEnum){
+          assert(enumOf(hit) != stateReg.toEnum)
+        }
+        fork{
+          i2cbus.master_write(0x21,0x01,0xffbb)
+          i2cbus.master_write(0x21,0x00,0xffbb)
+          i2cbus.master_write(0x21,0x20,0xffbb)
+        }.join()
+
+
+    }
+
     compile.doSim("test read many times"){
       dut=>
         val i2cbus=I2C_SimBus(dut.i2c,100 kHz, 50 MHz)
@@ -166,7 +183,7 @@ object DutTests {
         dut.clockDomain.forkStimulus(period = 2)
         import dut.pwm.ctrl.fsm._
         import dut.i2c_apb.bridge.rxData
-        forkSensitive(dut.pwm.ctrl.fsm.stateReg){
+        forkSensitive(stateReg.toEnum){
           if(enumOf(hit)==stateReg.toEnum){
             println("now hit")
             assert(rxData.value.toLong == 0x40)

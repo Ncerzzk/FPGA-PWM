@@ -1,140 +1,18 @@
-Spinal Base Project
+Simple I2C PWM Module(FPGA based)
 ============
-This repository is a base SBT project added to help non Scala/SBT native people in their first steps.
 
-Just one important note, you need a java JDK >= 8
+一个简单的FPGA PWM模块，通过I2C控制，使用SpinalHDL编写
 
-On debian :
+之前在折腾在linux板子上跑PX4，画了个V3s的板子，但是这些linux板子都有一个问题，就是PWM通道太少了，
+像用在飞控上，四个通道至少的吧，但人家只有一两个PWM通道
 
-```sh
-sudo add-apt-repository -y ppa:openjdk-r/ppa
-sudo apt-get update
-sudo apt-get install openjdk-8-jdk -y
+这种板子跑px4一般也是用外置的芯片来输出PWM波，典型的比如pca9685：https://www.nxp.com/products/power-management/lighting-driver-and-controller-ics/ic-led-controllers/16-channel-12-bit-pwm-fm-plus-ic-bus-led-controller:PCA9685
 
-#To set the default java
-sudo update-alternatives --config java
-sudo update-alternatives --config javac
-```
+但是pca9685有个问题，就是输出的pwm频率范围才24hz-1526hz，如果对于一般的电调来肯定是绰绰有余了，然而我想先将这个飞控用在
+空心杯四轴上测试测试。空心杯四轴上这1k频率的pwm稍微有点不够了，网上四处搜了一下，发现这种PWM LED控制芯片大同小异，基本都无法满足
+需求，于是干脆自己用FPGA撸了一个，顺便复习了一下SpinalHDL的语法
 
-## Basics, without any IDE
+I2C通信方面Spinalhdl已经封装好一个apb3的I2C 模块，基于这个模块再封装成具体的I2C Slave 即可。不过用之前还是得充分的理解一下它的实现的，Spinalhdl的I2C相关的文档较少，
+基本只能通过代码里的注释来理解。
 
-You need to install SBT
 
-```sh
-echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | sudo tee /etc/apt/sources.list.d/sbt.list
-echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | sudo tee /etc/apt/sources.list.d/sbt_old.list
-curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | sudo apt-key add
-sudo apt-get update
-sudo apt-get install sbt
-```
-
-If you want to run the scala written testbench, you have to be on linux and have Verilator installed (a recent version) :
-
-```sh
-sudo apt-get install git make autoconf g++ flex bison -y  # First time prerequisites
-git clone http://git.veripool.org/git/verilator   # Only first time
-unsetenv VERILATOR_ROOT  # For csh; ignore error if on bash
-unset VERILATOR_ROOT  # For bash
-cd verilator
-git pull        # Make sure we're up-to-date
-git checkout v4.040
-autoconf        # Create ./configure script
-./configure
-make -j$(nproc)
-sudo make install
-cd ..
-echo "DONE"
-
-```
-
-Clone or download this repository.
-
-```sh
-git clone https://github.com/SpinalHDL/SpinalTemplateSbt.git
-```
-
-Open a terminal in the root of it and run "sbt run". At the first execution, the process could take some seconds
-
-```sh
-cd SpinalTemplateSbt
-
-//If you want to generate the Verilog of your design
-sbt "runMain mylib.MyTopLevelVerilog"
-
-//If you want to generate the VHDL of your design
-sbt "runMain mylib.MyTopLevelVhdl"
-
-//If you want to run the scala written testbench
-sbt "runMain mylib.MyTopLevelSim"
-```
-
-The top level spinal code is defined into src\main\scala\mylib
-
-## Basics, with Intellij IDEA and its scala plugin
-
-You need to install :
-
-- Java JDK 8
-- SBT
-- Intellij IDEA (the free Community Edition is good enough)
-- Intellij IDEA Scala plugin (when you run Intellij IDEA the first time, he will ask you about it)
-
-And do the following :
-
-- Clone or download this repository.
-- In Intellij IDEA, "import project" with the root of this repository, Import project from external model SBT
-- In addition maybe you need to specify some path like JDK to Intellij
-- In the project (Intellij project GUI), go in src/main/scala/mylib/MyTopLevel.scala, right click on MyTopLevelVerilog, "Run MyTopLevelVerilog"
-
-Normally, this must generate an MyTopLevel.v output files.
-
-## Basics, with Eclipse and its scala plugin
-
-First, i "strongly" suggest to use intellij idea instead.
-
-You need to install :
-
-- Java JDK
-- Scala
-- SBT
-- Eclipse (tested with Mars.2 - 4.5.2)
-- [scala plugin](http://scala-ide.org/) (tested with 4.4.1)
-
-And do the following :
-
-- Clone or download this repository.
-- Revert changes from https://github.com/SpinalHDL/SpinalTemplateSbt/commit/173bbb9bb8cbf70087339104f6ebced9321908dd
-- Run ```sbt eclipse``` in the ```SpinalTemplateSbt``` directory.
-- Import the eclipse project from eclipse.
-- In the project (eclipse project GUI), right click on src/main/scala/mylib/MyTopLevel.scala, right click on MyTopLevelVerilog, and select run it
-
-Normally, this must generate output file ```MyTopLevel.v```.
-
-## Mill Support (Experimental)
-
-This Spinal Base Project contains support for the [Mill build tool](https://com-lihaoyi.github.io/mill).
-
-The prerequisites are the same as for using SBT, except for sbt itself. Additionally, the ```mill``` executable needs to be installed on the path. Download it to ```/usr/local/bin/mill``` or ```~/bin/mill``` according to the [installation instructions](https://com-lihaoyi.github.io/mill/mill/Intro_to_Mill.html#_installation).
-
-You can clone and use this repository in the following way.
-
-```sh
-git clone https://github.com/SpinalHDL/SpinalTemplateSbt.git
-```
-
-Open a terminal in the root of it and execute your favorite mill command. At the first execution, the process could take some seconds
-
-```sh
-cd SpinalTemplateSbt
-
-//If you want to generate the Verilog of your design
-mill mylib.runMain mylib.MyTopLevelVerilog
-
-//If you want to generate the VHDL of your design
-mill mylib.runMain mylib.MyTopLevelVhdl
-
-//If you want to run the scala written testbench
-mill mylib.runMain mylib.MyTopLevelSim
-```
-
-The top level spinal code is defined into src\main\scala\mylib
