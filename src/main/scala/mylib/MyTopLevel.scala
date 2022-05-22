@@ -94,10 +94,6 @@ class PWM(channel_num:Int=4) extends Component{
     for(i<-0 until channel_num){
       valCallback(out Bool(),"ch"+(i+1).toString)
     }
-    //val ch1 = out Bool()
-    //val ch2 = out Bool()
-    //val ch3 = out Bool()
-    //val ch4 = out Bool()
   }
 
   val pwm_area=new Area{
@@ -105,7 +101,7 @@ class PWM(channel_num:Int=4) extends Component{
     val counter = Reg(UInt(16 bits)).init(0)
     val period = Reg(UInt(16 bits)).init(2000)
     //val ccr1 = Reg(UInt(16 bits)).init(1000)
-    val ccrs = List.fill(pwm_out.elements.length)(Reg(UInt(16 bits)).init(1000))
+    val ccrs = List.fill(pwm_out.elements.length)(Reg(UInt(16 bits)).init(0))
 
     def regs: immutable.Seq[(Int, UInt)] ={
       val temp_list = ListBuffer(0->period)
@@ -456,12 +452,17 @@ class PWM(channel_num:Int=4) extends Component{
   }
 }
 
+class Gowin_OSC extends BlackBox{
+  val oscout=out Bool()
+}
+
 //Hardware definition
 class MyTopLevel extends Component {
 
   val i2c = master(I2c())
   //val ch1_out = out Bool()
   val pwm = new PWM()
+  //val gowin= new Gowin_OSC()
   val pwm_ch_out=pwm.pwm_out.clone()
   for (i <- pwm_ch_out.elements){
     i._2.asOutput()
@@ -477,6 +478,7 @@ class MyTopLevel extends Component {
     )
   )
 
+  //ClockDomain.internal("").clock := gowin.out_clk
 
   pwm.apb <> i2c_apb.io.apb
   pwm_ch_out := pwm.pwm_out

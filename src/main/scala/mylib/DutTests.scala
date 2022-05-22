@@ -153,7 +153,8 @@ object DutTests {
           assert(enumOf(hit) != stateReg.toEnum)
         }
         fork{
-          i2cbus.master_write(0x21,0x01,0xffbb)
+          i2cbus.master_write(0x01,0x20<<1,0x2020)
+          i2cbus.master_write(0x00,0x20,0xffbb)
           i2cbus.master_write(0x21,0x00,0xffbb)
           i2cbus.master_write(0x21,0x20,0xffbb)
         }.join()
@@ -172,7 +173,7 @@ object DutTests {
             result_list += result
           }
           assert(result_list(0)==2000)
-          assert(result_list(1)==1000)
+          assert(result_list(1)==0)
         }.join()
 
     }
@@ -233,7 +234,7 @@ object DutTests {
 
         i2cbus.start()
         i2cbus.master_send_byte(0x40)
-        i2cbus.master_send_byte(0x01)
+        i2cbus.master_send_byte(0x00)
         i2cbus.start()
         i2cbus.master_send_byte(0x41)
         val byte1 = i2cbus.master_read_byte(true)
@@ -243,7 +244,7 @@ object DutTests {
         println(f"recv $byte1%x")
         println(f"recv $byte2%x")
 
-        assert((byte1<<8 | byte2)==0x03e8)
+        assert((byte1<<8 | byte2)==0x07d0)
       }.join()
     }
 
