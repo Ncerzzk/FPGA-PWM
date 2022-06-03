@@ -96,28 +96,70 @@ class PWM(channel_num:Int=4) extends Component{
     }
   }
 
+  val config_reg= Reg(UInt(16 bits)).init(0)
+
+  val pre_divicder=new Area{
+    val counter=Reg(UInt(5 bits)).init(0)
+    val divider_val= config_reg.takeLow(5).asUInt
+    val clk_en = False.setWhen(counter===divider_val)
+
+    counter := counter+1
+    when(counter === divider_val ){
+      counter :=0
+    }
+  }
+
   val pwm_area=new Area{
 
     val counter = Reg(UInt(16 bits)).init(0)
     val period = Reg(UInt(16 bits)).init(2000)
-    //val ccr1 = Reg(UInt(16 bits)).init(1000)
     val ccrs = List.fill(pwm_out.elements.length)(Reg(UInt(16 bits)).init(0))
+    val period_buf = RegNext(period)
+
+    val output_active= ccrs.map(x=>x.asBits.orR).reduce((a,b)=>a|b)
+
+
+    val timeout_area=new Area{
+      val cnt_max= Vec(Reg(UInt(16 bits)).init(0), Reg(UInt(16 bits)).init(0))
+      val counter = Reg(UInt(32 bits))
+      val enable = config_reg.msb
+      val flag= Reg(Bool()).init(False)
+
+
+      when(enable && output_active && !flag){
+        counter:= counter +1
+      }
+
+      when(counter === cnt_max.asBits.asUInt){
+        flag := True  // the counter would stop at cnt_max +1 , but it doesn't matter
+      }
+
+      def clear= {
+        counter := 0
+        flag := False
+      }
+    }
 
     def regs: immutable.Seq[(Int, UInt)] ={
-      val temp_list = ListBuffer(0->period)
+      val temp_list:ListBuffer[(Int, UInt)]= ListBuffer(0->period)
       for(i <- 1 to ccrs.length){
         temp_list.append(i -> ccrs(i-1))
       }
+      temp_list.append(0x80->config_reg)
+      temp_list.append(0x81->timeout_area.cnt_max(0))  // low 16 bits
+      temp_list.append(0x82->timeout_area.cnt_max(1))  // high 16 bits
       temp_list.toList
     }
 
-    counter := counter+1
-    when(counter === period){
-      counter := 0
+    when(pre_divicder.clk_en){
+      counter := counter+1
+      when(counter === period || period_buf =/= period){
+        counter := 0
+      }
     }
 
     for( ((name,ref),ccr) <- pwm_out.elements zip ccrs){
-      ref:= counter < ccr
+      ref:= counter < ccr && !(timeout_area.enable && timeout_area.flag)
     }
     //pwm_out.ch1 := counter < ccr1
   }
@@ -423,6 +465,7 @@ class PWM(channel_num:Int=4) extends Component{
         onEntry{
           hit_state :=  0
           hit_context := False
+          pwm_area.timeout_area.clear
         }
         whenIsActive{
           switch(hit_state){
