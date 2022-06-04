@@ -23,10 +23,13 @@ I2C通信方面Spinalhdl已经封装好一个apb3的I2C 模块，基于这个模
 
 模块寄存器都为16位寄存器
 
-寄存器地址       寄存器说明
-0x00            period
-0x01-0x08       CCR0-CCR7
-0x80            config(msb为timeout功能开关， low 5 bits 为预分频系数(0为1分频， 依次类推)，其他位目前保留)
-0x81            timeout_max_low16bits
-0x82            timeout_max_high16bits
+|  寄存器地址   | 寄存器说明  |
+|  ----  | ----  |
+| 0x00  | period |
+| 0x01-0x08  | CCR0-CCR7 |
+| 0x80 | config(msb为timeout功能开关， low 5 bits 为预分频系数(0为1分频， 依次类推)，其他位目前保留) | 
+| 0x81 | timeout_max_low16bits |
+| 0x82 | timeout_max_high16bits |
+
+
 
