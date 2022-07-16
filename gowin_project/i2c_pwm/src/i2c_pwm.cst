@@ -1,0 +1,28 @@
+//Copyright (C)2014-2022 Gowin Semiconductor Corporation.
+//All rights reserved. 
+//File Title: Physical Constraints file
+//GOWIN Version: 1.9.8.06-1
+//Part Number: GW1N-LV1QN32C6/I5
+//Device: GW1N-1
+//Created Time: Sat 07 16 20:27:45 2022
+
+IO_LOC "pwm_ch_out_ch8" 16;
+IO_PORT "pwm_ch_out_ch8"  IO_TYPE=LVCMOS33 PULL_MODE=DOWN DRIVE=8;
+IO_LOC "pwm_ch_out_ch7" 20;
+IO_PORT "pwm_ch_out_ch7" IO_TYPE=LVCMOS33 PULL_MODE=DOWN DRIVE=8;
+IO_LOC "pwm_ch_out_ch6" 17;
+IO_PORT "pwm_ch_out_ch6" IO_TYPE=LVCMOS33 PULL_MODE=DOWN DRIVE=8;
+IO_LOC "pwm_ch_out_ch5" 9;
+IO_PORT "pwm_ch_out_ch5" IO_TYPE=LVCMOS33 PULL_MODE=DOWN DRIVE=8;
+IO_LOC "pwm_ch_out_ch4" 8;
+IO_PORT "pwm_ch_out_ch4" IO_TYPE=LVCMOS33 PULL_MODE=DOWN DRIVE=8;
+IO_LOC "pwm_ch_out_ch3" 5;
+IO_PORT "pwm_ch_out_ch3"  IO_TYPE=LVCMOS33 PULL_MODE=DOWN DRIVE=8;
+IO_LOC "pwm_ch_out_ch2" 4;
+IO_PORT "pwm_ch_out_ch2" IO_TYPE=LVCMOS33 PULL_MODE=DOWN DRIVE=8;
+IO_LOC "pwm_ch_out_ch1" 1;
+IO_PORT "pwm_ch_out_ch1" IO_TYPE=LVCMOS33 PULL_MODE=DOWN DRIVE=8;
+IO_LOC "i2c_sda" 21;
+IO_PORT "i2c_sda" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8 OPEN_DRAIN=ON;
+IO_LOC "i2c_scl" 22;
+IO_PORT "i2c_scl" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8 OPEN_DRAIN=ON;

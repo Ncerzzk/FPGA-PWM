@@ -1,0 +1,13 @@
+<?xml version="1" encoding="UTF-8"?>
+<!DOCTYPE gowin-fpga-project>
+<Project>
+    <Template>FPGA</Template>
+    <Version>5</Version>
+    <Device name="GW1N-1" pn="GW1N-LV1QN32C6/I5">gw1n1-002</Device>
+    <FileList>
+        <File path="E:/projects/I2C_PWM/MyTopLevel.v" type="file.verilog" enable="1"/>
+        <File path="src/gowin_osc/gowin_osc.v" type="file.verilog" enable="1"/>
+        <File path="src/wrap.v" type="file.verilog" enable="1"/>
+        <File path="src/i2c_pwm.cst" type="file.cst" enable="1"/>
+    </FileList>
+</Project>

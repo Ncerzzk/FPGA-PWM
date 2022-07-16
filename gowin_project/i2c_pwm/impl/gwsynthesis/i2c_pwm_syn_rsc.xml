@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module name="TopWrap">
+    <SubModule name="mytop">
+        <SubModule name="pwm_1" Register="319" Alu="228" Lut="407"/>
+        <SubModule name="i2c_apb" Register="102" Alu="17" Lut="125">
+            <SubModule name="i2cCtrl" Register="49" Lut="93">
+                <SubModule name="io_i2c_scl_read_buffercc" Register="2"/>
+                <SubModule name="io_i2c_sda_read_buffercc" Register="2"/>
+            </SubModule>
+        </SubModule>
+    </SubModule>
+    <SubModule name="osc"/>
+</Module>

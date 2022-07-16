@@ -1,0 +1,74 @@
+[
+ {
+  "InstFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/wrap.v",
+  "InstLine" : 3,
+  "InstName" : "TopWrap",
+  "ModuleFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/wrap.v",
+  "ModuleLine" : 3,
+  "ModuleName" : "TopWrap",
+  "SubInsts" : [
+   {
+    "InstFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/wrap.v",
+    "InstLine" : 19,
+    "InstName" : "mytop",
+    "ModuleFile" : "E:/projects/I2C_PWM/MyTopLevel.v",
+    "ModuleLine" : 24,
+    "ModuleName" : "MyTopLevel",
+    "SubInsts" : [
+     {
+      "InstFile" : "E:/projects/I2C_PWM/MyTopLevel.v",
+      "InstLine" : 73,
+      "InstName" : "pwm_1",
+      "ModuleFile" : "E:/projects/I2C_PWM/MyTopLevel.v",
+      "ModuleLine" : 869,
+      "ModuleName" : "PWM"
+     },
+     {
+      "InstFile" : "E:/projects/I2C_PWM/MyTopLevel.v",
+      "InstLine" : 93,
+      "InstName" : "i2c_apb",
+      "ModuleFile" : "E:/projects/I2C_PWM/MyTopLevel.v",
+      "ModuleLine" : 142,
+      "ModuleName" : "Apb3I2cCtrl",
+      "SubInsts" : [
+       {
+        "InstFile" : "E:/projects/I2C_PWM/MyTopLevel.v",
+        "InstLine" : 281,
+        "InstName" : "i2cCtrl",
+        "ModuleFile" : "E:/projects/I2C_PWM/MyTopLevel.v",
+        "ModuleLine" : 2178,
+        "ModuleName" : "I2cSlave",
+        "SubInsts" : [
+         {
+          "InstFile" : "E:/projects/I2C_PWM/MyTopLevel.v",
+          "InstLine" : 2264,
+          "InstName" : "io_i2c_scl_read_buffercc",
+          "ModuleFile" : "E:/projects/I2C_PWM/MyTopLevel.v",
+          "ModuleLine" : 2489,
+          "ModuleName" : "BufferCC"
+         },
+         {
+          "InstFile" : "E:/projects/I2C_PWM/MyTopLevel.v",
+          "InstLine" : 2270,
+          "InstName" : "io_i2c_sda_read_buffercc",
+          "ModuleFile" : "E:/projects/I2C_PWM/MyTopLevel.v",
+          "ModuleLine" : 2489,
+          "ModuleName" : "BufferCC"
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "InstFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/wrap.v",
+    "InstLine" : 34,
+    "InstName" : "osc",
+    "ModuleFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/gowin_osc/gowin_osc.v",
+    "ModuleLine" : 9,
+    "ModuleName" : "Gowin_OSC"
+   }
+  ]
+ }
+]

@@ -1,0 +1,163 @@
+//Copyright (C)2014-2022 Gowin Semiconductor Corporation.
+//All rights reserved.
+
+
+1. PnR Messages
+
+  <Report Title>: PnR Report
+  <Design File>: E:\projects\I2C_PWM\gowin_project\i2c_pwm\impl\gwsynthesis\i2c_pwm.vg
+  <Physical Constraints File>: E:\projects\I2C_PWM\gowin_project\i2c_pwm\src\i2c_pwm.cst
+  <Timing Constraints File>: ---
+  <PnR Version>: V1.9.8.06-1
+  <Part Number>: GW1N-LV1QN32C6/I5
+  <Device>: GW1N-1
+  <Created Time>:Sat Jul 16 20:29:21 2022
+
+
+2. PnR Details
+
+  Running placement:
+    Placement Phase 0: CPU time = 0h 0m 0.062s, Elapsed time = 0h 0m 0.062s
+    Placement Phase 1: CPU time = 0h 0m 0.027s, Elapsed time = 0h 0m 0.027s
+    Placement Phase 2: CPU time = 0h 0m 0.075s, Elapsed time = 0h 0m 0.075s
+    Placement Phase 3: CPU time = 0h 0m 0.773s, Elapsed time = 0h 0m 0.774s
+    Total Placement: CPU time = 0h 0m 0.937s, Elapsed time = 0h 0m 0.938s
+ Running routing:
+    Routing Phase 0: CPU time = 0h 0m 0.001s, Elapsed time = 0h 0m 0s
+    Routing Phase 1: CPU time = 0h 0m 0.02s, Elapsed time = 0h 0m 0.021s
+    Routing Phase 2: CPU time = 0h 0m 0.424s, Elapsed time = 0h 0m 0.424s
+    Total Routing: CPU time = 0h 0m 0.445s, Elapsed time = 0h 0m 0.445s
+ Generate output files:
+    CPU time = 0h 0m 0.228s, Elapsed time = 0h 0m 0.228s
+
+ Total Time and Memory Usage: CPU time = 0h 0m 2s, Elapsed time = 0h 0m 2s, Peak memory usage = 147MB
+
+
+3. Resource Usage Summary
+
+  ----------------------------------------------------------
+  Resources                   | Usage
+  ----------------------------------------------------------
+  Logic                       | 896/1152  77%
+    --LUT,ALU,ROM16           | 896(622 LUT, 274 ALU, 0 ROM16)
+    --SSRAM(RAM16)            | 0
+  Register                    | 474/918  51%
+    --Logic Register as Latch | 0/864  0%
+    --Logic Register as FF    | 470/864  54%
+    --I/O Register as Latch   | 0/54  0%
+    --I/O Register as FF      | 4/54  7%
+  CLS                         | 512/576  88%
+  I/O Port                    | 11
+  I/O Buf                     | 11
+    --Input Buf               | 1
+    --Output Buf              | 8
+    --Inout Buf               | 2
+  IOLOGIC                     | 0%
+  BSRAM                       | 0%
+  PLL                         | 0/1  0%
+  DCS                         | 0/4  0%
+  DQCE                        | 0/12  0%
+  OSC                         | 1/1  100%
+  User Flash                  | 0/1  0%
+  CLKDIV                      | 0/2  0%
+  DLLDLY                      | 0/2  0%
+  DHCEN                       | 0/4  0%
+  ==========================================================
+
+
+
+4. I/O Bank Usage Summary
+
+  -----------------------
+  I/O Bank  | Usage       
+  -----------------------
+  bank 0   | 3/4(75%)    
+  bank 1   | 4/10(40%)   
+  bank 2   | 2/3(66%)    
+  bank 3   | 2/9(22%)    
+  =======================
+
+
+5. Global Clock Usage Summary
+
+  -------------------------------
+  Global Clock  | Usage       
+  -------------------------------
+  PRIMARY       | 1/8(12%)
+  SECONDARY     | 1/8(12%)
+  GCLK_PIN      | 3/4(75%)
+  PLL           | 0/1(0%)
+  CLKDIV        | 0/2(0%)
+  DLLDLY        | 0/2(0%)
+  ===============================
+
+
+6. Global Clock Signals
+
+  -------------------------------------------
+  Signal         | Global Clock   | Location
+  -------------------------------------------
+  clk_osc        | PRIMARY        |  LEFT RIGHT
+  resetn_d       | SECONDARY      |  -
+  ===========================================
+
+
+7. Pinout by Port Name
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Port Name       | Diff Pair | Loc./Bank     | Constraint | Dir.  | Site     | IO Type    | Drive | Pull Mode | PCI Clamp | Hysteresis | Open Drain | Slew Rate | Vref       | Single Resistor | Diff Resistor | BankVccio 
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+resetn          |           | 29/3          | N          | in    | IOL7[A]  | LVCMOS18   | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | OFF             | NA            | 3.3       
+pwm_ch_out_ch1  |           | 1/3           | Y          | out   | IOL10[B] | LVCMOS33   | 8     | DOWN      | NA        | NA         | OFF        | FAST      | NA         | OFF             | NA            | 3.3       
+pwm_ch_out_ch2  |           | 4/2           | Y          | out   | IOB11[A] | LVCMOS33   | 8     | DOWN      | NA        | NA         | OFF        | FAST      | NA         | NA              | NA            | 3.3       
+pwm_ch_out_ch3  |           | 5/2           | Y          | out   | IOB11[B] | LVCMOS33   | 8     | DOWN      | NA        | NA         | OFF        | FAST      | NA         | NA              | NA            | 3.3       
+pwm_ch_out_ch4  |           | 8/1           | Y          | out   | IOR7[B]  | LVCMOS33   | 8     | DOWN      | NA        | NA         | OFF        | FAST      | NA         | OFF             | NA            | 3.3       
+pwm_ch_out_ch5  |           | 9/1           | Y          | out   | IOR7[A]  | LVCMOS33   | 8     | DOWN      | NA        | NA         | OFF        | FAST      | NA         | OFF             | NA            | 3.3       
+pwm_ch_out_ch6  |           | 17/1          | Y          | out   | IOR2[A]  | LVCMOS33   | 8     | DOWN      | NA        | NA         | OFF        | FAST      | NA         | OFF             | NA            | 3.3       
+pwm_ch_out_ch7  |           | 20/0          | Y          | out   | IOT11[A] | LVCMOS33   | 8     | DOWN      | NA        | NA         | OFF        | FAST      | NA         | NA              | NA            | 3.3       
+pwm_ch_out_ch8  |           | 16/1          | Y          | out   | IOR2[B]  | LVCMOS33   | 8     | DOWN      | NA        | NA         | OFF        | FAST      | NA         | OFF             | NA            | 3.3       
+i2c_scl         |           | 22/0          | Y          | io    | IOT10[A] | LVCMOS33   | 8     | UP        | NA        | NONE       | ON         | FAST      | NA         | NA              | NA            | 3.3       
+i2c_sda         |           | 21/0          | Y          | io    | IOT10[B] | LVCMOS33   | 8     | UP        | NA        | NONE       | ON         | FAST      | NA         | NA              | NA            | 3.3       
+=======================================================================================================================================================================================================================
+
+
+
+
+8. All Package Pins
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Loc./Bank| Signal          | Dir.  | Site     | IO Type  | Drive | Pull Mode | PCI Clamp | Hysteresis | Open Drain | Slew Rate | Vref       | Single Resistor | Diff Resistor | Bank Vccio
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+23/0     | -               | in    | IOT2[B]  | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
+22/0     | i2c_scl         | io    | IOT10[A] | LVCMOS33 | 8     | UP        | NA        | NONE       | ON         | FAST      | NA         | NA              | NA            | 3.3  
+21/0     | i2c_sda         | io    | IOT10[B] | LVCMOS33 | 8     | UP        | NA        | NONE       | ON         | FAST      | NA         | NA              | NA            | 3.3  
+20/0     | pwm_ch_out_ch7  | out   | IOT11[A] | LVCMOS33 | 8     | DOWN      | NA        | NA         | OFF        | FAST      | NA         | NA              | NA            | 3.3  
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+4/2      | pwm_ch_out_ch2  | out   | IOB11[A] | LVCMOS33 | 8     | DOWN      | NA        | NA         | OFF        | FAST      | NA         | NA              | NA            | 3.3  
+5/2      | pwm_ch_out_ch3  | out   | IOB11[B] | LVCMOS33 | 8     | DOWN      | NA        | NA         | OFF        | FAST      | NA         | NA              | NA            | 3.3  
+6/2      | -               | in    | IOB16[A] | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+24/3     | -               | in    | IOL6[A]  | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
+25/3     | -               | in    | IOL6[B]  | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
+26/3     | -               | in    | IOL6[C]  | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
+27/3     | -               | in    | IOL6[D]  | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
+28/3     | -               | out   | IOL6[E]  | LVCMOS18 | 8     | UP        | NA        | NA         | OFF        | FAST      | NA         | NA              | NA            | 3.3  
+29/3     | resetn          | in    | IOL7[A]  | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | OFF             | NA            | 3.3  
+30/3     | -               | in    | IOL7[B]  | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
+32/3     | -               | in    | IOL10[A] | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
+1/3      | pwm_ch_out_ch1  | out   | IOL10[B] | LVCMOS33 | 8     | DOWN      | NA        | NA         | OFF        | FAST      | NA         | OFF             | NA            | 3.3  
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+17/1     | pwm_ch_out_ch6  | out   | IOR2[A]  | LVCMOS33 | 8     | DOWN      | NA        | NA         | OFF        | FAST      | NA         | OFF             | NA            | 3.3  
+16/1     | pwm_ch_out_ch8  | out   | IOR2[B]  | LVCMOS33 | 8     | DOWN      | NA        | NA         | OFF        | FAST      | NA         | OFF             | NA            | 3.3  
+15/1     | -               | in    | IOR4[A]  | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
+14/1     | -               | in    | IOR5[A]  | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
+13/1     | -               | in    | IOR5[B]  | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
+12/1     | -               | in    | IOR6[F]  | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
+11/1     | -               | in    | IOR6[G]  | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
+10/1     | -               | in    | IOR6[H]  | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
+9/1      | pwm_ch_out_ch5  | out   | IOR7[A]  | LVCMOS33 | 8     | DOWN      | NA        | NA         | OFF        | FAST      | NA         | OFF             | NA            | 3.3  
+8/1      | pwm_ch_out_ch4  | out   | IOR7[B]  | LVCMOS33 | 8     | DOWN      | NA        | NA         | OFF        | FAST      | NA         | OFF             | NA            | 3.3  
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+============================================================================================================================================================================================
+
+

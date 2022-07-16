@@ -504,7 +504,7 @@ class MyTopLevel extends Component {
 
   val i2c = master(I2c())
   //val ch1_out = out Bool()
-  val pwm = new PWM()
+  val pwm = new PWM(8)
   //val gowin= new Gowin_OSC()
   val pwm_ch_out=pwm.pwm_out.clone()
   for (i <- pwm_ch_out.elements){
