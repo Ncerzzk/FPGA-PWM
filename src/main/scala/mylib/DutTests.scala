@@ -7,6 +7,11 @@ import spinal.lib.com.i2c.I2c
 
 import scala.collection.mutable.ListBuffer
 
+object temptest{
+  def main(args:Array[String]):Unit={
+
+  }
+}
 object DutTests {
   def main(args: Array[String]): Unit = {
 
@@ -127,7 +132,7 @@ object DutTests {
       val a=new MyTopLevel
       a.pwm.init.ok.simPublic()
       a.pwm.pwm_area.period.simPublic()
-      a.pwm.pwm_area.ccrs(0).simPublic()
+      //a.pwm.pwm_area.ccrs(0).simPublic()
       a.pwm.pwm_area.counter.simPublic()
       a.pwm.pwm_out.simPublic()
       a.i2c.simPublic()
@@ -188,7 +193,7 @@ object DutTests {
         dut.clockDomain.forkStimulus(period = 2)
         import dut.pwm.ctrl.fsm._
         import dut.i2c_apb.bridge.rxData
-        forkSensitive(stateReg.toEnum){
+        forkSensitive(stateReg.toBigInt){
           if(enumOf(hit)==stateReg.toEnum){
             println("now hit")
             assert(rxData.value.toLong == 0x40)

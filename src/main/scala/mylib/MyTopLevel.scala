@@ -87,7 +87,26 @@ object Seq_Area{
   }
 }
 
-class PWM(channel_num:Int=4) extends Component{
+class SubPWM(enable:Bool) extends Area{
+  val period = Reg(UInt(16 bits)).init(2000)
+  val counter = Reg(UInt(16 bits)).init(0)
+
+  val period_buf=RegNext(period)
+
+  def count():Unit= {
+    when(counter === period || period_buf =/= period){
+      counter := 0
+    }elsewhen(enable) {
+      counter := counter + 1
+    }
+  }
+
+}
+
+
+class PWM(channel_num:Int=4, sub_PWM_num:Int=2) extends Component{
+  assert(sub_PWM_num>=1)
+
   val apb = master(Apb3(Apb3I2cCtrl.getApb3Config))
   val int = in Bool()
   val pwm_out= new Bundle{
@@ -97,6 +116,18 @@ class PWM(channel_num:Int=4) extends Component{
   }
 
   val config_reg= Reg(UInt(16 bits)).init(0)
+
+  val sub_pwms=List(new SubPWM(True),new SubPWM(config_reg(14)))
+
+  class PWMChannel(config:Bits) extends Area{
+    val output=Bool
+    val ccr=Reg(UInt(16 bits)).init(0)
+    val counter_map=config.muxList(U(0),for(index <- 0 until sub_PWM_num) yield (index,sub_pwms(index).counter))
+
+    output := counter_map<ccr
+  }
+
+
 
   val pre_divicder=new Area{
     val counter=Reg(UInt(5 bits)).init(0)
@@ -111,12 +142,16 @@ class PWM(channel_num:Int=4) extends Component{
 
   val pwm_area=new Area{
 
-    val counter = Reg(UInt(16 bits)).init(0)
-    val period = Reg(UInt(16 bits)).init(2000)
-    val ccrs = List.fill(pwm_out.elements.length)(Reg(UInt(16 bits)).init(0))
-    val period_buf = RegNext(period)
+    val ccrmap_regs=List.fill((channel_num/4+0.5).toInt)(Reg(UInt(16 bits)).init(0))
+    val channels = for(i <- 0 until channel_num)  yield {
+      val range = (3 + i%4 *4) downto (0 + i%4 *4)
+      new PWMChannel(ccrmap_regs(i / 4)(range).asBits)
+    }
 
-    val output_active= ccrs.map(x=>x.asBits.orR).reduce((a,b)=>a|b)
+    val counter = sub_pwms(0).counter
+    val period = sub_pwms(0).period
+
+    val output_active= channels.map(x=>x.ccr.asBits.orR).reduce((a,b)=>a|b)
 
 
     val timeout_area=new Area{
@@ -141,10 +176,19 @@ class PWM(channel_num:Int=4) extends Component{
     }
 
     def regs: immutable.Seq[(Int, UInt)] ={
-      val temp_list:ListBuffer[(Int, UInt)]= ListBuffer(0->period)
-      for(i <- 1 to ccrs.length){
-        temp_list.append(i -> ccrs(i-1))
+      val temp_list:ListBuffer[(Int, UInt)]= ListBuffer(0->sub_pwms(0).period)
+      for(i <- channels.indices){
+        temp_list.append(0x1  + i  -> channels(i).ccr)
       }
+
+      for(i <- ccrmap_regs.indices){
+        temp_list.append(0x20 + i  -> ccrmap_regs(i))
+      }
+
+      for(i <- 1 until sub_pwms.length){
+        temp_list.append(0x40 + i  ->  sub_pwms(i).period)
+      }
+
       temp_list.append(0x80->config_reg)
       temp_list.append(0x81->timeout_area.cnt_max(0))  // low 16 bits
       temp_list.append(0x82->timeout_area.cnt_max(1))  // high 16 bits
@@ -152,14 +196,13 @@ class PWM(channel_num:Int=4) extends Component{
     }
 
     when(pre_divicder.clk_en){
-      counter := counter+1
-      when(counter === period || period_buf =/= period){
-        counter := 0
+      for (i <- sub_pwms){
+        i.count()
       }
     }
 
-    for( ((name,ref),ccr) <- pwm_out.elements zip ccrs){
-      ref:= counter < ccr && !(timeout_area.enable && timeout_area.flag)
+    for( ((name,ref),chn) <- pwm_out.elements zip channels){
+      ref:= chn.output && !(timeout_area.enable && timeout_area.flag)
     }
     //pwm_out.ch1 := counter < ccr1
   }
