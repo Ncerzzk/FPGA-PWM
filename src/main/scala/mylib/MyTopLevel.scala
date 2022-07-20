@@ -186,7 +186,7 @@ class PWM(channel_num:Int=4, sub_PWM_num:Int=2) extends Component{
       }
 
       for(i <- 1 until sub_pwms.length){
-        temp_list.append(0x40 + i  ->  sub_pwms(i).period)
+        temp_list.append(0x40 + i-1  ->  sub_pwms(i).period)
       }
 
       temp_list.append(0x80->config_reg)

@@ -135,6 +135,7 @@ object DutTests {
       //a.pwm.pwm_area.ccrs(0).simPublic()
       a.pwm.pwm_area.counter.simPublic()
       a.pwm.pwm_out.simPublic()
+      a.pwm.sub_pwms(1).counter.simPublic()
       a.i2c.simPublic()
       a.pwm.ctrl.fsm.stateReg.simPublic()
       a.i2c_apb.bridge.rxData.value.simPublic()
@@ -193,6 +194,7 @@ object DutTests {
         dut.clockDomain.forkStimulus(period = 2)
         import dut.pwm.ctrl.fsm._
         import dut.i2c_apb.bridge.rxData
+        waitUntil(dut.pwm.init.ok.toBoolean)
         forkSensitive(stateReg.toBigInt){
           if(enumOf(hit)==stateReg.toEnum){
             println("now hit")
@@ -275,11 +277,13 @@ object DutTests {
       fork{
         waitUntil(dut.pwm.init.ok.toBoolean)
         i2cbus.master_write(0x20,0x01,1000)
-        println("start cnt:"+dut.pwm.pwm_area.counter.toInt.toString)
+        val start_cnt=dut.pwm.pwm_area.counter.toInt
+        println("start cnt(no predivider):"+start_cnt)
         for(i <- 0 to 100){
           dut.clockDomain.waitSampling()
         }
-        println("start stop:"+dut.pwm.pwm_area.counter.toInt.toString)
+        assert(dut.pwm.pwm_area.counter.toInt-start_cnt==100)
+        println("stop cnt(no predivider):"+dut.pwm.pwm_area.counter.toInt.toString)
       }.join()
     }
 
@@ -324,6 +328,35 @@ object DutTests {
         }
         i2cbus.master_write(0x20,0x81,0xFFFF)
         i2cbus.master_write(0x20,0x80,1<<15)
+      }.join()
+    }
+
+    compile.doSim("test sub pwm enable"){dut =>
+      val i2cbus=I2C_SimBus(dut.i2c,100 kHz,50 MHz)
+      dut.clockDomain.forkStimulus(period = 2)
+      waitUntil(dut.pwm.init.ok.toBoolean)
+      fork{
+        i2cbus.master_write(0x20,0x80,1<<14)  // enable sub_pwm(1)
+        i2cbus.master_write(0x20,0x40,99)   // set sub_pwm(1) period=99
+        waitUntil(dut.pwm.sub_pwms(1).counter.toInt==0)
+        dut.clockDomain.waitSampling(150)
+        assert(dut.pwm.sub_pwms(1).counter.toInt==49)
+      }.join()
+    }
+
+    compile.doSim("test sub pwm map"){dut =>
+      val i2cbus=I2C_SimBus(dut.i2c,100 kHz,50 MHz)
+      dut.clockDomain.forkStimulus(period = 2)
+      waitUntil(dut.pwm.init.ok.toBoolean)
+      fork{
+        i2cbus.master_write(0x20,0x80,1<<14)  // enable sub_pwm(1)
+        i2cbus.master_write(0x20,0x40,400)   // set sub_pwm(1) period=400
+        i2cbus.master_write(0x20,0x01,300)   // set ccr0= 300
+        i2cbus.master_write(0x20,0x20,0x01)   // set pwm_map0 = 0x01
+        waitUntil(dut.pwm.sub_pwms(1).counter.toInt==1)
+        assert(dut.pwm.pwm_out.elements(0)._2.asInstanceOf[Bool].toBoolean)
+        dut.clockDomain.waitSampling(301)
+        assert(!dut.pwm.pwm_out.elements(0)._2.asInstanceOf[Bool].toBoolean)
       }.join()
     }
   }
