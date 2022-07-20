@@ -36,23 +36,23 @@
         "InstLine" : 281,
         "InstName" : "i2cCtrl",
         "ModuleFile" : "E:/projects/I2C_PWM/MyTopLevel.v",
-        "ModuleLine" : 2178,
+        "ModuleLine" : 2358,
         "ModuleName" : "I2cSlave",
         "SubInsts" : [
          {
           "InstFile" : "E:/projects/I2C_PWM/MyTopLevel.v",
-          "InstLine" : 2264,
+          "InstLine" : 2444,
           "InstName" : "io_i2c_scl_read_buffercc",
           "ModuleFile" : "E:/projects/I2C_PWM/MyTopLevel.v",
-          "ModuleLine" : 2489,
+          "ModuleLine" : 2669,
           "ModuleName" : "BufferCC"
          },
          {
           "InstFile" : "E:/projects/I2C_PWM/MyTopLevel.v",
-          "InstLine" : 2270,
+          "InstLine" : 2450,
           "InstName" : "io_i2c_sda_read_buffercc",
           "ModuleFile" : "E:/projects/I2C_PWM/MyTopLevel.v",
-          "ModuleLine" : 2489,
+          "ModuleLine" : 2669,
           "ModuleName" : "BufferCC"
          }
         ]

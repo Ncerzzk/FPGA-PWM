@@ -104,7 +104,7 @@ class SubPWM(enable:Bool) extends Area{
 }
 
 
-class PWM(channel_num:Int=4, sub_PWM_num:Int=2) extends Component{
+class PWM(channel_num:Int=4, sub_PWM_num:Int=2,timeout_ext:Boolean=false) extends Component{
   assert(sub_PWM_num>=1)
 
   val apb = master(Apb3(Apb3I2cCtrl.getApb3Config))
@@ -117,7 +117,10 @@ class PWM(channel_num:Int=4, sub_PWM_num:Int=2) extends Component{
 
   val config_reg= Reg(UInt(16 bits)).init(0)
 
-  val sub_pwms=List(new SubPWM(True),new SubPWM(config_reg(14)))
+  val sub_pwms=ListBuffer(new SubPWM(True))
+  for(i <- 1 until sub_PWM_num){
+    sub_pwms.append(new SubPWM(config_reg(15-i)))   // 14 for sub_pwm(1) | 13 for sub_pwm(2)   ...
+  }
 
   class PWMChannel(config:Bits) extends Area{
     val output=Bool
@@ -142,26 +145,26 @@ class PWM(channel_num:Int=4, sub_PWM_num:Int=2) extends Component{
 
   val pwm_area=new Area{
 
-    val ccrmap_regs=List.fill((channel_num/4+0.5).toInt)(Reg(UInt(16 bits)).init(0))
+    val ccrmap_regs=List.fill((channel_num/8+0.5).toInt)(Reg(UInt(16 bits)).init(0))
     val channels = for(i <- 0 until channel_num)  yield {
-      val range = (3 + i%4 *4) downto (0 + i%4 *4)
-      new PWMChannel(ccrmap_regs(i / 4)(range).asBits)
+      val range = (1 + i%8 *2) downto (0 + i%8 *2)
+      new PWMChannel(ccrmap_regs(i / 8)(range).asBits)
     }
 
     val counter = sub_pwms(0).counter
     val period = sub_pwms(0).period
 
-    val output_active= channels.map(x=>x.ccr.asBits.orR).reduce((a,b)=>a|b)
+    //val output_active=channels.map(x=>x.ccr.asBits =/= 0).reduce((a,b)=>a|b)
 
 
-    val timeout_area=new Area{
+    var timeout_area=new Area{
       val cnt_max= Vec(Reg(UInt(16 bits)).init(0), Reg(UInt(16 bits)).init(0))
       val counter = Reg(UInt(32 bits))
       val enable = config_reg.msb
       val flag= Reg(Bool()).init(False)
 
 
-      when(enable && output_active && !flag){
+      when(enable && !flag){
         counter:= counter +1
       }
 
@@ -174,6 +177,7 @@ class PWM(channel_num:Int=4, sub_PWM_num:Int=2) extends Component{
         flag := False
       }
     }
+
 
     def regs: immutable.Seq[(Int, UInt)] ={
       val temp_list:ListBuffer[(Int, UInt)]= ListBuffer(0->sub_pwms(0).period)
@@ -201,8 +205,9 @@ class PWM(channel_num:Int=4, sub_PWM_num:Int=2) extends Component{
       }
     }
 
+    val output_enable = !(timeout_area.enable && timeout_area.flag)
     for( ((name,ref),chn) <- pwm_out.elements zip channels){
-      ref:= chn.output && !(timeout_area.enable && timeout_area.flag)
+      ref:= chn.output &&  output_enable
     }
     //pwm_out.ch1 := counter < ccr1
   }
@@ -598,6 +603,7 @@ object MySpinalConfig extends SpinalConfig(defaultConfigForClockDomains = ClockD
 //Generate the MyTopLevel's Verilog using the above custom configuration.
 object MyTopLevelVerilogWithCustomConfig {
   def main(args: Array[String]) {
-    MySpinalConfig.generateVerilog(InOutWrapper(new MyTopLevel))
+    MySpinalConfig.includeSynthesis.includeFormal.generateVerilog(InOutWrapper(new MyTopLevel))
+
   }
 }

@@ -4,8 +4,8 @@
     <Version>beta</Version>
     <Device id="GW1N-1" package="QFN32" speed="6" partNumber="GW1N-LV1QN32C6/I5"/>
     <FileList>
-        <File path="E:\projects\I2C_PWM\gowin_project\i2c_pwm\src\gowin_osc\gowin_osc.v" type="verilog"/>
         <File path="E:\projects\I2C_PWM\MyTopLevel.v" type="verilog"/>
+        <File path="E:\projects\I2C_PWM\gowin_project\i2c_pwm\src\gowin_osc\gowin_osc.v" type="verilog"/>
         <File path="E:\projects\I2C_PWM\gowin_project\i2c_pwm\src\wrap.v" type="verilog"/>
     </FileList>
     <OptionList>
