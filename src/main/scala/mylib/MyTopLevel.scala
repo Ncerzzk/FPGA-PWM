@@ -104,7 +104,7 @@ class SubPWM(enable:Bool) extends Area{
 }
 
 
-class PWM(channel_num:Int=4, sub_PWM_num:Int=2,timeout_ext:Boolean=false) extends Component{
+class PWM(channel_num:Int=4, sub_PWM_num:Int=2,timeout_ext:Boolean=true) extends Component{
   assert(sub_PWM_num>=1)
 
   val apb = master(Apb3(Apb3I2cCtrl.getApb3Config))
@@ -157,7 +157,7 @@ class PWM(channel_num:Int=4, sub_PWM_num:Int=2,timeout_ext:Boolean=false) extend
     //val output_active=channels.map(x=>x.ccr.asBits =/= 0).reduce((a,b)=>a|b)
 
 
-    var timeout_area=new Area{
+    val timeout_area=timeout_ext.generate (new Area{
       val cnt_max= Vec(Reg(UInt(16 bits)).init(0), Reg(UInt(16 bits)).init(0))
       val counter = Reg(UInt(32 bits))
       val enable = config_reg.msb
@@ -173,10 +173,12 @@ class PWM(channel_num:Int=4, sub_PWM_num:Int=2,timeout_ext:Boolean=false) extend
       }
 
       def clear= {
-        counter := 0
-        flag := False
+        if(timeout_ext){
+          counter := 0
+          flag := False
+        }
       }
-    }
+    })
 
 
     def regs: immutable.Seq[(Int, UInt)] ={
@@ -194,8 +196,11 @@ class PWM(channel_num:Int=4, sub_PWM_num:Int=2,timeout_ext:Boolean=false) extend
       }
 
       temp_list.append(0x80->config_reg)
-      temp_list.append(0x81->timeout_area.cnt_max(0))  // low 16 bits
-      temp_list.append(0x82->timeout_area.cnt_max(1))  // high 16 bits
+      if(timeout_ext){
+        temp_list.append(0x81->timeout_area.cnt_max(0))  // low 16 bits
+        temp_list.append(0x82->timeout_area.cnt_max(1))  // high 16 bits
+      }
+
       temp_list.toList
     }
 
@@ -205,7 +210,10 @@ class PWM(channel_num:Int=4, sub_PWM_num:Int=2,timeout_ext:Boolean=false) extend
       }
     }
 
-    val output_enable = !(timeout_area.enable && timeout_area.flag)
+    var output_enable:Bool=True
+    if(timeout_ext){
+      output_enable = !(timeout_area.enable && timeout_area.flag)
+    }
     for( ((name,ref),chn) <- pwm_out.elements zip channels){
       ref:= chn.output &&  output_enable
     }
@@ -513,7 +521,8 @@ class PWM(channel_num:Int=4, sub_PWM_num:Int=2,timeout_ext:Boolean=false) extend
         onEntry{
           hit_state :=  0
           hit_context := False
-          pwm_area.timeout_area.clear
+          if(timeout_ext)          pwm_area.timeout_area.clear
+
         }
         whenIsActive{
           switch(hit_state){

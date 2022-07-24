@@ -326,8 +326,10 @@ object DutTests {
           assert(! dut.pwm.pwm_out.elements(0)._2.asInstanceOf[Bool].toBoolean)
           dut.clockDomain.waitSampling()
         }
-        i2cbus.master_write(0x20,0x81,0xFFFF)
-        i2cbus.master_write(0x20,0x80,1<<15)
+        i2cbus.master_write(0x21,0x81,0xFFFF)
+        i2cbus.master_write(0x21,0x80,1<<15)
+        assert(! dut.pwm.pwm_out.elements(0)._2.asInstanceOf[Bool].toBoolean)
+
       }.join()
     }
 
