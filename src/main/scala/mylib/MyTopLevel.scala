@@ -104,10 +104,13 @@ class SubPWM(enable:Bool) extends Area{
 }
 
 
+
+
 class PWM(channel_num:Int=4, sub_PWM_num:Int=2,timeout_ext:Boolean=true) extends Component{
   assert(sub_PWM_num>=1)
-
+  val a=M"1000000000"
   val apb = master(Apb3(Apb3I2cCtrl.getApb3Config))
+
   val int = in Bool()
   val pwm_out= new Bundle{
     for(i<-0 until channel_num){
@@ -382,7 +385,6 @@ class PWM(channel_num:Int=4, sub_PWM_num:Int=2,timeout_ext:Boolean=true) extends
         )
       }
     }
-
     val master_drive = new Area{
       val active=False
       val byte=Bits(8 bits)
