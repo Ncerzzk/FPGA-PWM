@@ -25,7 +25,7 @@ object SpiSlaveCtrlInt{
 
 class APB3OperationArea(apb_m:Apb3) extends Area{
   import APB3Phase._
-  val phase = RegInit(IDLE)
+  val phase = RegInit(SETUP) //optimization for faster apb access
   val transfer = False
   var writeOkMap=Map[(Component,UInt),Bool]()
   apb_m.PADDR.setAsReg()
@@ -102,17 +102,15 @@ class APB3OperationArea(apb_m:Apb3) extends Area{
 
     is(SETUP){
       apb_m.PSEL:=B(1)
-      phase:= ACCESS
+      when(transfer){
+        phase:= ACCESS
+      }
     }
 
     is(ACCESS){
       apb_m.PSEL:=B(1)
       apb_m.PENABLE := True
-      when(transfer){
-        phase := SETUP
-      }otherwise{
-        phase := IDLE
-      }
+      phase:= SETUP
     }
   }
 }
