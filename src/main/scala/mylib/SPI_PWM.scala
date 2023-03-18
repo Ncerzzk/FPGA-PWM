@@ -132,14 +132,6 @@ class SPI_PWM extends Component{
 
   val apb_operation= new APB3OperationArea(apb_m)
 
-  val interrupt_status = Reg(Bits(4 bits)).init(0)
-  val interrupt_status_valid = RegInit(False)
-  when(interrupt & !interrupt_status_valid){
-    apb_operation.read(0x04){
-      interrupt_status := apb_m.PRDATA(11 downto 8)
-      interrupt_status_valid := True
-    }
-  }
   val fsm = new StateMachine {
     val reg_addr = Reg(UInt(7 bits)).init(0)
     val idle : State = new State with EntryPoint
@@ -147,18 +139,12 @@ class SPI_PWM extends Component{
     val being_written : State = new State
     val start_transfer : State = new State
 
-    idle.onEntry{
-      interrupt_status := 0
-      interrupt_status_valid := False
-    }
-
     idle.whenIsActive {
       new Sequencer()
         .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.status, SpiSlaveCtrlInt.ssEnabledIntEnable))
         .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.config,0x00))
-        .addStep(interrupt_status_valid && interrupt_status(2))
+        .addStep(interrupt)
         .addStep(apb_operation.write_t(spi_slave_regs.status, SpiSlaveCtrlInt.ssEnabledIntClear){
-          interrupt_status_valid := False
           goto(start_transfer)
         })
     }
@@ -167,40 +153,14 @@ class SPI_PWM extends Component{
     start_transfer.whenIsActive {
       new Sequencer()
         .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.status, SpiSlaveCtrlInt.rxIntEnable | SpiSlaveCtrlInt.rxListen))
-        .addStep(interrupt_status_valid && interrupt_status(1))
+        .addStep(interrupt)
         .addStep(apb_operation.read_t(spi_slave_regs.data){
           rdata =>{
             reg_addr := rdata(7 downto 1).asUInt
-            interrupt_status_valid := False
             when(rdata(0))(goto(being_written)).otherwise(goto(being_read))
           }})
     }
 
-    def spislave_fifo_write_byte(value :Bits)(block: =>Unit): Unit ={
-      apb_operation.write(0x00,value.resize(32)){block}
-    }
-
-    def spislave_fifo_write(value:Bits, size:Int)(block: =>Unit) : Unit ={
-      val cnt= Reg(UInt(log2Up(size) bits)).init(0)
-      switch(cnt){
-        for(i <- 0 until size){
-          is(i) {
-            spislave_fifo_write_byte(value >> (size-i-1) * 8) {
-              if(i==size-1){
-                block
-              }else {
-                cnt := cnt + 1
-              }
-            }
-          }
-        }
-        if(size != 1<<cnt.getBitsWidth) {
-          default {
-            spislave_fifo_write_byte(0x0) {}
-          }
-        }
-      }
-    }
     being_read.whenIsActive{
       //spislave_fifo_write(regs(reg_addr),2){ // we push 2 bytes into fifo, then go for rest
        // goto(idle)
@@ -217,7 +177,7 @@ class SPI_PWM extends Component{
       val data = Reg(Bits(16 bits))
       new Sequencer()
         .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.status, SpiSlaveCtrlInt.ssDisabledIntEnable | SpiSlaveCtrlInt.rxListen))
-        .addStep(interrupt_status_valid && interrupt_status(3))
+        .addStep(interrupt)
         .addStep(apb_operation.read_t(spi_slave_regs.data){
           rdata => data.takeHigh(8) := rdata.takeLow(8)
         })
