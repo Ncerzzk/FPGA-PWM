@@ -119,6 +119,7 @@ class SPI_PWM extends Component{
   val apb_m = master(Apb3(Apb3SpiSlaveCtrl.getApb3Config))
   val interrupt = in Bool()
 
+
   val spi_slave_regs= new Area{
     val data = U("32'b0")
     val status = U("32'h4")
@@ -141,9 +142,12 @@ class SPI_PWM extends Component{
 
     idle.whenIsActive {
       new Sequencer()
+
         .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.status, SpiSlaveCtrlInt.ssEnabledIntEnable))
         .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.config,0x00))
         .addStep(interrupt)
+        .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.data,B(0xff).resize(32)))
+        // fill the tx payload, we need it to trigger txInt normally
         .addStep(apb_operation.write_t(spi_slave_regs.status, SpiSlaveCtrlInt.ssEnabledIntClear){
           goto(start_transfer)
         })
@@ -151,14 +155,22 @@ class SPI_PWM extends Component{
 
 
     start_transfer.whenIsActive {
+      val is_written = RegInit(False)
       new Sequencer()
-        .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.status, SpiSlaveCtrlInt.rxIntEnable | SpiSlaveCtrlInt.rxListen))
+        .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.status, SpiSlaveCtrlInt.txIntEnable | SpiSlaveCtrlInt.rxListen))
+        // use txInterrupt, because txInt would be asserted before rxInt, so we have more time to prepare data
+        // the only thing we need to do for txInt is filling tx payload after SS enable
         .addStep(interrupt)
         .addStep(apb_operation.read_t(spi_slave_regs.data){
           rdata =>{
             reg_addr := rdata(7 downto 1).asUInt
-            when(rdata(0))(goto(being_written)).otherwise(goto(being_read))
+            is_written := rdata.lsb
+            //when(rdata(0))(goto(being_written)).otherwise(goto(being_read))
           }})
+        .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.data,regs(reg_addr).takeHigh(8).resize(32)))
+        .addStep(apb_operation.write_t(spi_slave_regs.data,regs(reg_addr).takeLow(8).resize(32)){
+          when(is_written)(goto(being_written)).otherwise(goto(idle))
+        })
     }
 
     being_read.whenIsActive{
