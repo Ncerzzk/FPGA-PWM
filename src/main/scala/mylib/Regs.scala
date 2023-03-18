@@ -1,64 +1,77 @@
 package mylib
 
 import spinal.core._
+
+import scala.collection.mutable
 import scala.collection.mutable.Map
 
 case class SimpleReg(name:String, size:Int=4,desc:String=""){
 
 }
 
-class RegArea(desc_data:Map[Int,SimpleReg]) extends Area{
+class RegMem(bitcount:BitCount,size:Int) extends Area{
+  val data = Mem(Bits(bitcount),size).init(Array.fill(size)(B(0)))
+  val outRange = Bool
 
-  val data=Map[Int,Bits]()
-  var max_size:Int=0
-  for( (addr,simplereg) <- desc_data){
-    if(simplereg.size > max_size) {
-      max_size = simplereg.size
+  outRange := False
+
+  val regsMap = mutable.LinkedHashMap[Int,SimpleReg]()
+
+  def add(addr:Int,name:String,desc:String): Unit ={
+    regsMap += ( addr-> SimpleReg(name,bitcount.value/8,desc))
+  }
+
+  val decodeMap = mutable.Map[(Component,UInt), UInt]()
+  val accessMap = mutable.Map[(Component,UInt), Bits]()
+
+  def decode(in:Int):Int={
+    for( ((addr,_),index) <- regsMap.zipWithIndex){
+      if(in==addr){
+        return index
+      }
     }
-    val temp = Reg(Bits( (simplereg.size * 8)bits))
-    data += (addr-> temp)
-    valCallbackRec(temp,simplereg.name)
+    throw new Exception("didn't find this addr in regs!")
   }
 
-  def write(addr:UInt,value:Bits){}
-
-  def write(addr:Int, value:Bits)={
-    data(addr) := value
-  }
-
-  def read(read_addr:UInt)={
-    val temp = Bits( (max_size * 8) bits)
-    switch(read_addr){
-      for( (addr,reg) <- data){
+  def decode(in:UInt):UInt={
+    val key = (Component.current,in)
+    if(decodeMap.contains(key)){return decodeMap(key)}  // check whether we have decoded this addr variable before
+    val out = UInt(log2Up(size) bits)
+    switch(in){
+      for( ((addr,_),i) <- regsMap.zipWithIndex){
         is(addr){
-          temp:= reg
+          out := i
         }
       }
-      if(1<<read_addr.getBitsWidth != data.size){
-        default{
-          temp := B(0)
-        }
+      default{
+        outRange := True
+        out:=0
       }
     }
-    temp
+    decodeMap += key->out
+    out
   }
 
-  def get(addr:Int) = data(addr)
+  def apply(addr:Int)=data(decode(U(addr).resized))
+  def apply(addr:UInt):Bits={
+    val index = decode(addr)
+    val key = (Component.current,index)
+    if(accessMap.contains(key)){return accessMap(key)}
 
-
-}
-
-class Regs {
-  var data: Map[Int, SimpleReg] =Map[Int,SimpleReg]()
-
-  def add(simplereg : SimpleReg,addr:Int) = data+=(addr->simplereg)
-
-  def add(name:String,addr:Int,size:Int=4,desc:String=""): Unit ={
-    add(SimpleReg(name,size,desc),addr)
+    // start to create access mux for this addr(decoded)
+    // and we will save the mux in the accessMap, so that we can use it next time
+    // refered the implement of Vec
+    val origin = data(index)
+    val ret = cloneOf(origin)
+    ret := origin
+    ret.compositeAssign =new Assignable {
+      override  def assignFromImpl(that: AnyRef, target: AnyRef, kind: AnyRef) = {
+        data(index) := that.asInstanceOf[Bits]
+      }
+      override def getRealSourceNoRec: Any = RegMem.this
+    }
+    accessMap += key->ret
+    ret
   }
-
-  def count: Int = data.size
-  def buildArea()=new RegArea(data)
-
 
 }

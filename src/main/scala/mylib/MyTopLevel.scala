@@ -82,7 +82,7 @@ object Seq_Area{
   }
 
   def apply(seqs:Seq[(=>Unit) => Unit]):Unit={
-    val state =Reg(UInt(log2Up(seqs.length+1) bits)).init(0).keep()
+    val state =Reg(UInt(log2Up(seqs.length+1) bits)).init(0)
     seq_switch(seqs,state)
   }
 }
