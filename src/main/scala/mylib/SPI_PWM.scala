@@ -118,7 +118,11 @@ class SPI_PWM extends Component{
   import utils._
   val apb_m = master(Apb3(Apb3SpiSlaveCtrl.getApb3Config))
   val interrupt = in Bool()
+  val sclk = in Bool()  // used to count sclk by ourself
+  val mosi = in Bool()  // used to handle the first byte by ourself
 
+  val sclk_sync = BufferCC(sclk)
+  val mosi_sync = BufferCC(mosi)
 
   val spi_slave_regs= new Area{
     val data = U("32'b0")
@@ -136,53 +140,58 @@ class SPI_PWM extends Component{
   val fsm = new StateMachine {
     val reg_addr = Reg(UInt(7 bits)).init(0)
     val idle : State = new State with EntryPoint
-    val being_read : State = new State
     val being_written : State = new State
     val start_transfer : State = new State
 
+    val sclk_count = Counter(8)
+    val sclk_cnt_start = RegInit(False)
+    val temp_rx = Reg(Bits(8 bits)).init(0)
+
     idle.whenIsActive {
       new Sequencer()
-
         .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.status, SpiSlaveCtrlInt.ssEnabledIntEnable))
         .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.config,0x00))
         .addStep(interrupt)
-        .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.data,B(0xff).resize(32)))
-        // fill the tx payload, we need it to trigger txInt normally
-        .addStep(apb_operation.write_t(spi_slave_regs.status, SpiSlaveCtrlInt.ssEnabledIntClear){
+        .addStep{
           goto(start_transfer)
-        })
+          True
+        }
+
     }
 
+    start_transfer.onEntry{
+      sclk_cnt_start:=True
+      temp_rx:=B(0).resized
+    }
 
+    start_transfer.onExit{
+      sclk_cnt_start:=False
+      sclk_count.clear()
+    }
+
+    when(sclk_cnt_start && sclk_sync.rise()){
+      sclk_count.increment()
+      temp_rx := (temp_rx ## mosi_sync).resized
+      // only work at cpol 0, cpha 0
+      // handle the first rx byte by ourself, to make the module could run at high sclk freq
+    }
     start_transfer.whenIsActive {
-      val is_written = RegInit(False)
-      new Sequencer()
-        .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.status, SpiSlaveCtrlInt.txIntEnable | SpiSlaveCtrlInt.rxListen))
-        // use txInterrupt, because txInt would be asserted before rxInt, so we have more time to prepare data
-        // the only thing we need to do for txInt is filling tx payload after SS enable
-        .addStep(interrupt)
-        .addStep(apb_operation.read_t(spi_slave_regs.data){
-          rdata =>{
-            reg_addr := rdata(7 downto 1).asUInt
-            is_written := rdata.lsb
-            //when(rdata(0))(goto(being_written)).otherwise(goto(being_read))
-          }})
-        .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.data,regs(reg_addr).takeHigh(8).resize(32)))
-        .addStep(apb_operation.write_t(spi_slave_regs.data,regs(reg_addr).takeLow(8).resize(32)){
-          when(is_written)(goto(being_written)).otherwise(goto(idle))
-        })
-    }
-
-    being_read.whenIsActive{
-      //spislave_fifo_write(regs(reg_addr),2){ // we push 2 bytes into fifo, then go for rest
-       // goto(idle)
-      //}
 
       new Sequencer()
+        .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.status, SpiSlaveCtrlInt.ssEnabledIntClear))
+        .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.data, 0xff))  // write anything to tx payload to send in the first byte
+        .addStep(sclk_count.value === U(7))
+        .addStep{
+          reg_addr := temp_rx.takeLow(7).asUInt
+          True
+        }
         .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.data,regs(reg_addr).takeHigh(8).resize(32)))
-        .addStep(apb_operation.write_t(spi_slave_regs.data,regs(reg_addr).takeLow(8).resize(32)){
-          goto(idle)
-        })
+        .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.data,regs(reg_addr).takeLow(8).resize(32)))
+        .addStep(sclk_count.value===0)
+        .addStep{
+           when(temp_rx.lsb)(goto(being_written)).otherwise(goto(idle))
+           True
+        }
     }
 
     being_written.whenIsActive{
@@ -213,6 +222,8 @@ class SPI_PWM_Top extends Component{
   spi_pwm.interrupt := spi_slave_ctrl.io.interrupt
   spi_pwm.apb_m <> spi_slave_ctrl.io.apb
   spi_slave_ctrl.io.spi <> spi_pins
+  spi_pwm.sclk := spi_pins.sclk
+  spi_pwm.mosi := spi_pins.mosi
 }
 
 

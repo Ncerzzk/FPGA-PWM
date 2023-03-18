@@ -14,7 +14,7 @@ case class simSpiMaster(spi:SpiSlave,moduleFreq:Int,spiFreq:Int){
   val sclk=spi.sclk
   val miso=spi.miso.write
   val ss = spi.ss
-  val sleepCnt = moduleFreq / spiFreq
+  val sleepCnt: Int = moduleFreq / spiFreq
 
   ss #= true
   sclk #= false
@@ -74,9 +74,9 @@ object SPI_PWM_DutTests {
 
         fork{
           //waitUntil(dut.spi_pwm.inited.toBoolean)
-          sleep(50)
+          sleep(100)
           master.transfer(Array(1,2,3))
-          sleep(50)
+          sleep(100)
         }.join()
 
         assert(dut.spi_pwm.regs.data.getBigInt(0)==0x0203)
@@ -85,12 +85,12 @@ object SPI_PWM_DutTests {
     compile.doSim("spi read"){
       dut=>
         dut.clockDomain.forkStimulus(period = 2)
-        val master = simSpiMaster(dut.spi_pins,200,20)
+        val master = simSpiMaster(dut.spi_pins,200,50)
         dut.spi_pwm.regs.data.setBigInt(0,0xf1f2)
 
         fork{
           sleep(50)
-          val ret = master.transfer(Array(0,0,0))
+          val ret = master.transfer(Array(1<<1 | 0,0,0))
           sleep(50)
           for(i<- ret){
             println(s"${i}")
