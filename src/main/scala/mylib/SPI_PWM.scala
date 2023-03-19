@@ -120,9 +120,11 @@ class SPI_PWM extends Component{
   val interrupt = in Bool()
   val sclk = in Bool()  // used to count sclk by ourself
   val mosi = in Bool()  // used to handle the first byte by ourself
+  val ss = in Bool()  // used to handle ss by ourself
 
   val sclk_sync = BufferCC(sclk)
   val mosi_sync = BufferCC(mosi)
+  val ss_sync = BufferCC(ss)
 
   val spi_slave_regs= new Area{
     val data = U("32'b0")
@@ -196,21 +198,46 @@ class SPI_PWM extends Component{
 
     being_written.whenIsActive{
       val data = Reg(Bits(16 bits))
+      val is_high_8bit = RegInit(True)
+      val ptr = cloneOf(reg_addr)
       new Sequencer()
         .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.status, SpiSlaveCtrlInt.ssDisabledIntEnable | SpiSlaveCtrlInt.rxListen))
-        .addStep(interrupt)
-        .addStep(apb_operation.read_t(spi_slave_regs.data){
-          rdata => data.takeHigh(8) := rdata.takeLow(8)
-        })
-        .addStep(apb_operation.read_t(spi_slave_regs.data){
-          rdata => data.takeLow(8) := rdata.takeLow(8)
-        })
-        .addStep(apb_operation.write_t(spi_slave_regs.status, SpiSlaveCtrlInt.ssDisabledIntClear){
-          regs(reg_addr) := data
-          goto(idle)
-        })
-
+        .addStep{
+          ptr := reg_addr
+          True
+        }
+        .addStep{
+          when(interrupt){
+            apb_operation.read_t(spi_slave_regs.data){
+              rdata => {
+                is_high_8bit := !is_high_8bit
+                when(is_high_8bit)(data.takeHigh(8) := rdata.takeLow(8)).otherwise(data.takeLow(8) := rdata.takeLow(8))
+              }
+            }
+          }
+          when(is_high_8bit.rise()){
+            ptr := ptr + 1
+          }
+          False  // let's stuck here, and go back to idle when SS rising
+        }
+//        .addStep(interrupt)
+//        .addStep(apb_operation.read_t(spi_slave_regs.data){
+//          rdata => data.takeHigh(8) := rdata.takeLow(8)
+//        })
+//        .addStep(apb_operation.read_t(spi_slave_regs.data){
+//          rdata => data.takeLow(8) := rdata.takeLow(8)
+//        })
+//        .addStep(apb_operation.write_t(spi_slave_regs.status, SpiSlaveCtrlInt.ssDisabledIntClear){
+//          regs(reg_addr) := data
+//          goto(idle)
+//        })
     }
+   always{
+     when(ss_sync.rise()){
+       goto(idle)
+     }
+   }
+
   }
 
 }
@@ -218,12 +245,13 @@ class SPI_PWM extends Component{
 class SPI_PWM_Top extends Component{
   val spi_pins = master(SpiSlave())
   val spi_pwm = new SPI_PWM
-  val spi_slave_ctrl = Apb3SpiSlaveCtrl(SpiSlaveCtrlMemoryMappedConfig(SpiSlaveCtrlGenerics()))
+  val spi_slave_ctrl = Apb3SpiSlaveCtrl(SpiSlaveCtrlMemoryMappedConfig(SpiSlaveCtrlGenerics(),3,3))
   spi_pwm.interrupt := spi_slave_ctrl.io.interrupt
   spi_pwm.apb_m <> spi_slave_ctrl.io.apb
   spi_slave_ctrl.io.spi <> spi_pins
   spi_pwm.sclk := spi_pins.sclk
   spi_pwm.mosi := spi_pins.mosi
+  spi_pwm.ss := spi_pins.ss
 }
 
 

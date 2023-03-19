@@ -85,7 +85,7 @@ object SPI_PWM_DutTests {
     compile.doSim("spi read"){
       dut=>
         dut.clockDomain.forkStimulus(period = 2)
-        val master = simSpiMaster(dut.spi_pins,200,50)
+        val master = simSpiMaster(dut.spi_pins,210,70)
         dut.spi_pwm.regs.data.setBigInt(0,0xf1f2)
 
         fork{
