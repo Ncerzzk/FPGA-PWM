@@ -47,6 +47,7 @@ case class simSpiMaster(spi:SpiSlave,moduleFreq:Int,spiFreq:Int){
     for(data <- dataArray){
       ret += transferSampleByte(data)
     }
+    sleep(sleepCnt)
     ss #= true
     ret
   }
@@ -90,7 +91,7 @@ object SPI_PWM_DutTests {
 
         fork{
           sleep(50)
-          val ret = master.transfer(Array(1<<1 | 0,0,0))
+          val ret = master.transfer(Array( 0,0,0))
           sleep(50)
           for(i<- ret){
             println(s"${i}")

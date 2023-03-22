@@ -4,7 +4,7 @@ import spinal.core._
 import spinal.lib._
 import spinal.lib.bus.amba3.apb.{Apb3, Apb3Config, Apb3SlaveFactory}
 import spinal.lib.com.spi.{Apb3SpiSlaveCtrl, SpiSlave, SpiSlaveCtrlGenerics, SpiSlaveCtrlMemoryMappedConfig}
-import spinal.lib.fsm.{EntryPoint, State, StateMachine}
+import spinal.lib.fsm.{EntryPoint, State, StateFsm, StateMachine}
 
 object APB3Phase extends SpinalEnum{
   val IDLE, SETUP, ACCESS = newElement
@@ -139,20 +139,30 @@ class SPI_PWM extends Component{
 
   val apb_operation= new APB3OperationArea(apb_m)
 
-  val fsm = new StateMachine {
+  val spi_fsm = new StateMachine {
     val reg_addr = Reg(UInt(7 bits)).init(0)
     val idle : State = new State with EntryPoint
-    val being_written : State = new State
+    val being_written  = new StateFsm(internalBeingWrittenFSM()){
+      whenCompleted(goto(idle))
+    }
     val start_transfer : State = new State
+
+
 
     val sclk_count = Counter(8)
     val sclk_cnt_start = RegInit(False)
     val temp_rx = Reg(Bits(8 bits)).init(0)
 
+    always{
+      when(ss_sync && !isActive(being_written)){  //handle ss -> high situation
+        goto(idle)
+      }
+    }
+
     idle.whenIsActive {
       new Sequencer()
-        .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.status, SpiSlaveCtrlInt.ssEnabledIntEnable))
-        .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.config,0x00))
+        .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.status, SpiSlaveCtrlInt.ssEnabledIntEnable | SpiSlaveCtrlInt.ssDisabledIntClear))
+        .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.config,0x00)) // set cpol and cpha
         .addStep(interrupt)
         .addStep{
           goto(start_transfer)
@@ -178,17 +188,18 @@ class SPI_PWM extends Component{
       // handle the first rx byte by ourself, to make the module could run at high sclk freq
     }
     start_transfer.whenIsActive {
-
+      val reg_data = Reg(Bits(16 bits)).init(0)
       new Sequencer()
         .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.status, SpiSlaveCtrlInt.ssEnabledIntClear))
         .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.data, 0xff))  // write anything to tx payload to send in the first byte
         .addStep(sclk_count.value === U(7))
         .addStep{
           reg_addr := temp_rx.takeLow(7).asUInt
+          reg_data := regs(temp_rx.takeLow(7).asUInt.resized)
           True
         }
-        .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.data,regs(reg_addr).takeHigh(8).resize(32)))
-        .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.data,regs(reg_addr).takeLow(8).resize(32)))
+        .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.data,reg_data.takeHigh(8).resize(32)))
+        .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.data,reg_data.takeLow(8).resize(32)))
         .addStep(sclk_count.value===0)
         .addStep{
            when(temp_rx.lsb)(goto(being_written)).otherwise(goto(idle))
@@ -196,47 +207,51 @@ class SPI_PWM extends Component{
         }
     }
 
-    being_written.whenIsActive{
-      val data = Reg(Bits(16 bits))
+
+    def internalBeingWrittenFSM()=new StateMachine{
+      val data = Reg(Bits(8 bits)).init(0)
+      val ptr = Reg(cloneOf(reg_addr)).init(0)
       val is_high_8bit = RegInit(True)
-      val ptr = cloneOf(reg_addr)
-      new Sequencer()
-        .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.status, SpiSlaveCtrlInt.ssDisabledIntEnable | SpiSlaveCtrlInt.rxListen))
-        .addStep{
-          ptr := reg_addr
-          True
+
+      val init:State = new State with EntryPoint{
+        whenIsActive {
+          apb_operation.write_t(spi_slave_regs.status,
+            SpiSlaveCtrlInt.rxIntEnable  | SpiSlaveCtrlInt.rxListen) {
+            ptr := reg_addr
+            goto(wait_s)
+          }
         }
-        .addStep{
-          when(interrupt){
-            apb_operation.read_t(spi_slave_regs.data){
-              rdata => {
-                is_high_8bit := !is_high_8bit
-                when(is_high_8bit)(data.takeHigh(8) := rdata.takeLow(8)).otherwise(data.takeLow(8) := rdata.takeLow(8))
-              }
+      }
+
+      val wait_s:State = new State{
+        whenIsActive{
+          when(interrupt)(goto(read))
+          when(ss_sync)(exitFsm())
+        }
+      }
+
+      val read:State = new State{
+        whenIsActive{
+          apb_operation.read_t(spi_slave_regs.data){
+            rdata => {
+              val rdata_low = rdata.takeLow(8)
+              is_high_8bit := !is_high_8bit
+              regs(ptr) := data ## rdata_low
+              data := rdata_low
+              goto(wait_s)
             }
           }
-          when(is_high_8bit.rise()){
-            ptr := ptr + 1
-          }
-          False  // let's stuck here, and go back to idle when SS rising
+
         }
-//        .addStep(interrupt)
-//        .addStep(apb_operation.read_t(spi_slave_regs.data){
-//          rdata => data.takeHigh(8) := rdata.takeLow(8)
-//        })
-//        .addStep(apb_operation.read_t(spi_slave_regs.data){
-//          rdata => data.takeLow(8) := rdata.takeLow(8)
-//        })
-//        .addStep(apb_operation.write_t(spi_slave_regs.status, SpiSlaveCtrlInt.ssDisabledIntClear){
-//          regs(reg_addr) := data
-//          goto(idle)
-//        })
+      }
+      always {
+        when(is_high_8bit.rise()) {
+          ptr := ptr + 1
+        }
+      }
+
     }
-   always{
-     when(ss_sync.rise()){
-       goto(idle)
-     }
-   }
+
 
   }
 
