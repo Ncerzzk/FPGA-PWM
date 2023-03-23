@@ -1,6 +1,7 @@
 package mylib
 
 import spinal.core._
+import spinal.core.sim.{SimBitVectorPimper, SimClockDomainHandlePimper, SimConfig, SimDataPimper}
 
 import scala.collection.mutable
 import scala.collection.mutable.Map
@@ -72,6 +73,49 @@ class RegMem(bitcount:BitCount,size:Int) extends Area{
     }
     accessMap += key->ret
     ret
+  }
+
+}
+
+class RegMemTest extends Component{
+  val regs = new RegMem(16 bits,16)
+  regs.add(0x00,"period","period of the counter")
+  regs.add(0x01,"CCR1",desc="ccr of channel 1")
+  regs.add(0x02,"CCR2",desc="ccr of channel 2")
+
+  regs.add(addr=0x40,"TEST",desc="TEST")
+
+  regs(0x40) := 0xabcd
+
+  val data1: Bits = regs(0x40)
+  val data2: Bits = regs(U(0x40)) simPublic()
+
+  val d = U(0x40)
+
+  val data3 = regs(d)
+  val data4 = regs(d)
+
+  assert(data3==data4)   // data3 should be the same with data4, as we use a map inside applay()
+
+}
+
+object RegMem_DutTests {
+  def main(args: Array[String]): Unit = {
+    val compile = SimConfig.withWave.withVerilator.compile {
+      val a = new RegMemTest
+      a.data1.simPublic()
+      a.data2.simPublic()
+      a
+    }
+
+    compile.doSim("decode int"){
+      dut=>
+        assert(dut.regs.decode(0x00) == 0x00)
+        assert(dut.regs.decode(0x01) == 0x01)
+        assert(dut.regs.decode(0x40) == 0x03)
+
+        assert(dut.data1.toInt == dut.data2.toInt)
+    }
   }
 
 }
