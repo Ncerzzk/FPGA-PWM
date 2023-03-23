@@ -6,6 +6,7 @@ import spinal.core._
 
 import scala.collection.mutable.ListBuffer
 import spinal.lib.com.spi.{SpiSlave, SpiSlaveCtrlGenerics, SpiSlaveCtrlMemoryMappedConfig}
+import spinal.lib.fsm.{State, StateFsm}
 import spinal.lib.io.TriStateOutput
 
 import scala.collection.mutable
@@ -57,8 +58,11 @@ object SPI_PWM_DutTests {
     val compile=SimConfig.withWave.withVerilator.compile {
       val a=new SPI_PWM_Top
       a.spi_pwm.regs.data.simPublic()
+      a.spi_pwm.spi_fsm.stateReg.simPublic()
       a
     }
+
+    def testSPIMaster(spipins:SpiSlave)=simSpiMaster(spipins,210,70)
 
     compile.doSim("test apb operation"){
       dut=>
@@ -71,7 +75,7 @@ object SPI_PWM_DutTests {
     compile.doSim("spi transfer"){
       dut=>
         dut.clockDomain.forkStimulus(period = 2)
-        val master = simSpiMaster(dut.spi_pins,200,50)
+        val master = testSPIMaster(dut.spi_pins)
 
         fork{
           //waitUntil(dut.spi_pwm.inited.toBoolean)
@@ -83,22 +87,57 @@ object SPI_PWM_DutTests {
         assert(dut.spi_pwm.regs.data.getBigInt(0)==0x0203)
     }
 
-    compile.doSim("spi read"){
-      dut=>
-        dut.clockDomain.forkStimulus(period = 2)
-        val master = simSpiMaster(dut.spi_pins,210,70)
-        dut.spi_pwm.regs.data.setBigInt(0,0xf1f2)
+    def spi_read_test(addr:Int): Unit ={
+      compile.doSim("spi read" + addr.toString()){
+        dut=>
+          dut.clockDomain.forkStimulus(period = 2)
+          val master = testSPIMaster(dut.spi_pins)
+          val data = scala.util.Random.nextInt(65536)
+          var ret:Seq[Int] = Array[Int]()
+          dut.spi_pwm.regs.data.setBigInt(addr,data)
 
-        fork{
-          sleep(50)
-          val ret = master.transfer(Array( 0,0,0))
-          sleep(50)
-          for(i<- ret){
-            println(s"${i}")
-          }
-        }.join()
+          fork{
+            sleep(50)
+            ret = master.transfer(Array( addr<<1 | 0,0,0))
+            sleep(50)
+
+          }.join()
+          assert((ret(1)<<8 | ret(2)) == data)
+      }
     }
 
+    spi_read_test(0)
+    spi_read_test(1)
+    spi_read_test(2)
+
+
+    def spi_corrupt_test(state:State)={
+      compile.doSim("spi corrupt at " + state.toString().split("/").last){
+        dut=>
+          dut.clockDomain.forkStimulus(period = 2)
+          val master = testSPIMaster(dut.spi_pins)
+          import dut.spi_pwm.spi_fsm._
+          var has_pull_up_ss=false
+          forkSensitive(stateReg){
+            if(!has_pull_up_ss && enumOf(state)==stateReg.toEnum){
+              master.ss #= true
+              has_pull_up_ss=true
+            }else{
+              if(has_pull_up_ss){
+                assert(enumOf(idle)==stateReg.toEnum)
+              }
+            }
+          }
+
+          fork{
+            sleep(50)
+            master.transfer(Array(1,2,3))
+            sleep(50)
+          }.join()
+      }
+    }
+    spi_corrupt_test(compile.dut.spi_pwm.spi_fsm.start_transfer)
+    spi_corrupt_test(compile.dut.spi_pwm.spi_fsm.being_written)
 
   }
 }

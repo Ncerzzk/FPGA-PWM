@@ -23,97 +23,7 @@ object SpiSlaveCtrlInt{
 
 }
 
-class APB3OperationArea(apb_m:Apb3) extends Area{
-  import APB3Phase._
-  val phase = RegInit(SETUP) //optimization for faster apb access
-  val transfer = False
-  var writeOkMap=Map[(Component,UInt),Bool]()
-  apb_m.PADDR.setAsReg()
-  apb_m.PWRITE.setAsReg()
 
-  apb_m.PENABLE := False
-  apb_m.PWDATA := B(0)
-  apb_m.PWRITE.rise()
-  def write_t(addr:UInt,value:Bits)(block: => Unit = Unit):Bool={
-    apb_m.PWRITE := True
-    apb_m.PADDR := addr.resized
-    apb_m.PWDATA := value
-    transfer := True
-
-    when(apb_m.PENABLE){
-      transfer := False
-      block
-    }
-//    val key = (Component.current ,addr)
-//    if(writeOkMap.contains(key)){
-//      return writeOkMap(key)
-//    }
-
-    //val ret = apb_m.PENABLE & apb_m.PWRITE & apb_m.PADDR===addr.resized
-    val ret = apb_m.PENABLE
-    //writeOkMap += (Component.current,addr)->ret
-    ret
-  }
-
-  def write_t_withoutcallback(addr:UInt,value:Bits):Bool={
-    write_t(addr,value){}
-  }
-  def write(addr:UInt,value:Bits)(block: => Unit = Unit): Unit ={
-    // we should use block :=> Unit but not block: Unit here,
-    // so that the block would be called inside the correct position
-    apb_m.PWRITE := True
-    apb_m.PADDR := addr.resized
-    apb_m.PWDATA := value
-    transfer := True
-
-    when(apb_m.PENABLE){
-      transfer := False
-      block
-    }
-  }
-  def read_t(addr:UInt)(block: Bits => Unit) ={
-    apb_m.PWRITE := False
-    apb_m.PADDR := addr.resized
-    transfer := True
-    when(apb_m.PENABLE){
-      transfer := False
-      block(apb_m.PRDATA)
-    }
-    apb_m.PENABLE
-  }
-  def read(addr:UInt)(block: => Unit = {}): Unit ={
-    apb_m.PWRITE := False
-    apb_m.PADDR := addr.resized
-    transfer := True
-    when(apb_m.PENABLE){
-      transfer := False
-      block
-    }
-  }
-
-  switch(phase){
-    is(IDLE){
-      apb_m.PSEL:= B(0)
-      apb_m.PENABLE := False
-      when(transfer){
-        phase := SETUP
-      }
-    }
-
-    is(SETUP){
-      apb_m.PSEL:=B(1)
-      when(transfer){
-        phase:= ACCESS
-      }
-    }
-
-    is(ACCESS){
-      apb_m.PSEL:=B(1)
-      apb_m.PENABLE := True
-      phase:= SETUP
-    }
-  }
-}
 class SPI_PWM extends Component{
   import utils._
   val apb_m = master(Apb3(Apb3SpiSlaveCtrl.getApb3Config))
@@ -146,8 +56,6 @@ class SPI_PWM extends Component{
       whenCompleted(goto(idle))
     }
     val start_transfer : State = new State
-
-
 
     val sclk_count = Counter(8)
     val sclk_cnt_start = RegInit(False)
@@ -225,8 +133,9 @@ class SPI_PWM extends Component{
 
       val wait_s:State = new State{
         whenIsActive{
-          when(interrupt)(goto(read))
-          when(ss_sync)(exitFsm())
+          when(interrupt)(goto(read)).otherwise{
+            when(ss_sync)(exitFsm())
+          }
         }
       }
 
@@ -241,7 +150,6 @@ class SPI_PWM extends Component{
               goto(wait_s)
             }
           }
-
         }
       }
       always {
