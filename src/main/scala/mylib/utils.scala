@@ -1,5 +1,6 @@
 package mylib
 import spinal.core._
+import spinal.lib.bus.amba3.apb.Apb3
 import spinal.lib.sim._
 
 object utils {
@@ -12,19 +13,6 @@ object utils {
     ctx.restore()                            // Restore the original context in which this function was called
     swapContext.appendBack()              // append the original symboles tree to the modified body
     ret                                   // return the value returned by that
-  }
-
-  val finished = outsideCondScope {
-    RegInit(True).setWeakName("finished")
-  }
-
-  def after(block1: => Bool)(block2: Bool => Unit): Unit ={
-    val finished = RegInit(False)
-    when(finished){
-      when(block1){finished:= False}
-    }otherwise{
-      block2(finished)   // we should set finished to True in block2
-    }
   }
 }
 
@@ -47,4 +35,73 @@ class Sequencer extends Area {
       step_counter.clearAll()
     }
   })
+}
+
+class APB3OperationArea(apb_m:Apb3) extends Area{
+  import APB3Phase._
+  val phase = RegInit(SETUP) //optimization for faster apb access
+  val transfer = False
+  var writeOkMap=Map[(Component,UInt),Bool]()
+  apb_m.PADDR.setAsReg()
+  apb_m.PWRITE.setAsReg()
+
+  apb_m.PENABLE := False
+  apb_m.PWDATA := B(0)
+  apb_m.PWRITE.rise()
+  def write_t(addr:UInt,value:Bits)(block: => Unit = Unit):Bool={
+    apb_m.PWRITE := True
+    apb_m.PADDR := addr.resized
+    apb_m.PWDATA := value
+    transfer := True
+
+    when(apb_m.PENABLE){
+      transfer := False
+      block
+    }
+    //    val key = (Component.current ,addr)
+    //    if(writeOkMap.contains(key)){
+    //      return writeOkMap(key)
+    //    }
+
+    val ret = apb_m.PENABLE
+    ret
+  }
+
+  def write_t_withoutcallback(addr:UInt,value:Bits):Bool={
+    write_t(addr,value){}
+  }
+
+  def read_t(addr:UInt)(block: Bits => Unit) ={
+    apb_m.PWRITE := False
+    apb_m.PADDR := addr.resized
+    transfer := True
+    when(apb_m.PENABLE){
+      transfer := False
+      block(apb_m.PRDATA)
+    }
+    apb_m.PENABLE
+  }
+
+  switch(phase){
+    is(IDLE){
+      apb_m.PSEL:= B(0)
+      apb_m.PENABLE := False
+      when(transfer){
+        phase := SETUP
+      }
+    }
+
+    is(SETUP){
+      apb_m.PSEL:=B(1)
+      when(transfer){
+        phase:= ACCESS
+      }
+    }
+
+    is(ACCESS){
+      apb_m.PSEL:=B(1)
+      apb_m.PENABLE := True
+      phase:= SETUP
+    }
+  }
 }
