@@ -42,10 +42,10 @@ class SPI_PWM extends Component{
     val config = U("32'h8")
   }
 
+
+
   val regs = new RegMem(16 bits,16)
-  regs.add(0x00,"period","period of the counter")
-  regs.add(0x01,"CCR1",desc="ccr of channel 1")
-  regs.add(0x02,"CCR2",desc="ccr of channel 2")
+  val pwm = new PWMArea(regs,8,2)
 
   val apb_operation= new APB3OperationArea(apb_m)
 

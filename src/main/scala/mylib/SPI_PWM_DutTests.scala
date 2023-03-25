@@ -139,6 +139,19 @@ object SPI_PWM_DutTests {
     spi_corrupt_test(compile.dut.spi_pwm.spi_fsm.start_transfer)
     spi_corrupt_test(compile.dut.spi_pwm.spi_fsm.being_written)
 
+    compile.doSim("continuous write test"){
+      dut=>
+        dut.clockDomain.forkStimulus(period = 2)
+        val master = testSPIMaster(dut.spi_pins)
+        dut.clockDomain.waitSampling(50)
+        val ret = master.transfer(Array( 1<<1 | 1,2,3,4,5,6,7))
+        dut.clockDomain.waitSampling(50)
+
+        assert(dut.spi_pwm.regs.data.getBigInt(1) == 0x0203)
+        assert(dut.spi_pwm.regs.data.getBigInt(2) == 0x0405)
+        assert(dut.spi_pwm.regs.data.getBigInt(3) == 0x0607)
+
+    }
   }
 }
 

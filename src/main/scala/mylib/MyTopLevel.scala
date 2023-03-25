@@ -87,25 +87,6 @@ object Seq_Area{
   }
 }
 
-class SubPWM(enable:Bool) extends Area{
-  val period = Reg(UInt(16 bits)).init(2000)
-  val counter = Reg(UInt(16 bits)).init(0)
-
-  val period_buf=RegNext(period)
-
-  def count():Unit= {
-    when(counter === period || period_buf =/= period){
-      counter := 0
-    }elsewhen(enable) {
-      counter := counter + 1
-    }
-  }
-
-}
-
-
-
-
 class PWM(channel_num:Int=4, sub_PWM_num:Int=2,timeout_ext:Boolean=true) extends Component{
   assert(sub_PWM_num>=1)
   val a=M"1000000000"

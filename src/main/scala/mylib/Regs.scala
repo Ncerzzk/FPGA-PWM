@@ -1,17 +1,16 @@
 package mylib
 
 import spinal.core._
-import spinal.core.sim.{SimBitVectorPimper, SimClockDomainHandlePimper, SimConfig, SimDataPimper}
+import spinal.core.sim._
 
 import scala.collection.mutable
-import scala.collection.mutable.Map
 
-case class SimpleReg(name:String, size:Int=4,desc:String=""){
-
-}
+case class SimpleReg(name:String, size:Int=4,desc:String=""){}
 
 class RegMem(bitcount:BitCount,size:Int) extends Area{
   val data = Mem(Bits(bitcount),size).init(Array.fill(size)(B(0)))
+  //val data = Vec(Reg(Bits(bitcount)).init(0),size)
+
   val outRange = Bool
 
   outRange := False
@@ -53,7 +52,7 @@ class RegMem(bitcount:BitCount,size:Int) extends Area{
     out
   }
 
-  def apply(addr:Int)=data(decode(U(addr).resized))
+  def apply(addr:Int)=data(U(decode(addr)).resized)
   def apply(addr:UInt):Bits={
     val index = decode(addr)
     val key = (Component.current,index)
