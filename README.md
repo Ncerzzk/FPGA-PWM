@@ -1,37 +1,74 @@
-Simple I2C PWM Module(FPGA based)
-============
+# FPGA-PWM Module
 
-一个简单的FPGA PWM模块，通过I2C控制，使用SpinalHDL编写
+This module is designed for generating pulse-width modulation (PWM) signals on an FPGA platform. It supports both SPI and I2C communication protocols and provides up to 8 channels of PWM output. Additionally, it has 2 sub-counters that can generate signals with different frequencies.
 
-之前在折腾在linux板子上跑PX4，画了个V3s的板子，但是这些linux板子都有一个问题，就是PWM通道太少了，
-像用在飞控上，四个通道至少的吧，但人家只有一两个PWM通道
+## Features
 
-这种板子跑px4一般也是用外置的芯片来输出PWM波，典型的比如pca9685：https://www.nxp.com/products/power-management/lighting-driver-and-controller-ics/ic-led-controllers/16-channel-12-bit-pwm-fm-plus-ic-bus-led-controller:PCA9685
+- Supports SPI and I2C communication protocols
+- Up to 8 channels of PWM output
+- 2 sub-counters that can generate signals with different frequencies
+- Supports a maximum SPI communication speed of 20MHz
+- Supports a maximum I2C communication speed of 400kHz
+- Uses 397 LUTs and 447 FFs in Gowin FPGA GW1N-LV1
 
-但是pca9685有个问题，就是输出的pwm频率范围才24hz-1526hz，如果对于一般的电调来肯定是绰绰有余了，然而我想先将这个飞控用在
-空心杯四轴上测试测试。空心杯四轴上这1k频率的pwm稍微有点不够了，网上四处搜了一下，发现这种PWM LED控制芯片大同小异，基本都无法满足
-需求，于是干脆自己用FPGA撸了一个，顺便复习了一下SpinalHDL的语法
+## Registers
 
-I2C通信方面Spinalhdl已经封装好一个apb3的I2C 模块，基于这个模块再封装成具体的I2C Slave 即可。不过用之前还是得充分的理解一下它的实现的，Spinalhdl的I2C相关的文档较少，
-基本只能通过代码里的注释来理解。
+| Offset   | Name                 | Description                                                  |
+| -------- | --------------------| -------------------------------------------------------------|
+| 0x00     | subpwm0_period      | Period of sub-counter 0                                      |
+| 0x01     | CCR0                | Compare value of channel 0                                   |
+| 0x02     | CCR1                | Compare value of channel 1                                   |
+| 0x03     | CCR2                | Compare value of channel 2                                   |
+| 0x04     | CCR3                | Compare value of channel 3                                   |
+| 0x05     | CCR4                | Compare value of channel 4                                   |
+| 0x06     | CCR5                | Compare value of channel 5                                   |
+| 0x07     | CCR6                | Compare value of channel 6                                   |
+| 0x08     | CCR7                | Compare value of channel 7                                   |
+| 0x20     | pwm_channel_map0    | PWM channel mapping register for channel 0 to 8              |
+| 0x40     | subpwm1_period      | Period of sub-counter 1                                      |
+| 0x50     | config              | Configuration register. Bit 15: enable timeout; Bit 14: enable sub-counter 1; Low 5 bits: pre-divider |
+| 0x7D     | timeout_max_low     | Timeout value (low 16 bits)                                  |
+| 0x7E     | timeout_max_high    | Timeout value (high 16 bits)                                 |
+| 0x7F     | watchdog            | Watchdog register. Toggle the LSB to clear the timeout flag  |
+
+## License
+
+This module is licensed under the GPL 3.0 license. Please see the [LICENSE](LICENSE) file for details.
+
+## Authors
+
+- [ncerzzk](https://github.com/ncerzzk) - Initial work
+
+## Acknowledgments
+
+- Thanks to [OpenAI](https://openai.com/) for providing the ChatGPT model used to generate this documentation.
 
 
-## 使用说明
-- I2C addr: 0x20
+# FPGA PWM模块
 
-## 寄存器说明
+该FPGA PWM模块可以在FPGA上实现PWM输出。模块支持SPI/I2C协议，最多支持8个通道以及2个子计数器（可以生成2种不同频率）。模块已经在Gowin FPGA GW1N-LV1上进行过测试，消耗资源为397个LUT和447个FF。
 
-模块寄存器都为16位寄存器
+## 寄存器映射
 
-| 寄存器地址     | 寄存器说明                                                                                     |
-|-----------|-------------------------------------------------------------------------------------------|
-| 0x00      | period                                                                                    |
-| 0x01-0x08 | CCR0-CCR7                                                                                 |
-| 0x20-0x21 | pwm_channel_map(0-1)，设置某个PWM通道所使用的period，一个通道2 bits，0为默认period                            |
-| 0x40      | subpwm_1_period                                                                           |
-| 0x80      | config(msb为timeout功能开关,14 bit 为 sub_pwm_1_enable, low 5 bits 为预分频系数(0为1分频， 依次类推)，其他位目前保留) | 
-| 0x81      | timeout_max_low16bits                                                                     |
-| 0x82      | timeout_max_high16bits                                                                    |
+| 偏移地址 | 名称 | 描述                                        |
+| --- | --- |-------------------------------------------|
+| 0x0 | subpwm0_period | 子计数器0的周期                                  |
+| 0x1 | CCR0 | 通道0的比较值                                   |
+| 0x2 | CCR1 | 通道1的比较值                                   |
+| 0x3 | CCR2 | 通道2的比较值                                   |
+| 0x4 | CCR3 | 通道3的比较值                                   |
+| 0x5 | CCR4 | 通道4的比较值                                   |
+| 0x6 | CCR5 | 通道5的比较值                                   |
+| 0x7 | CCR6 | 通道6的比较值                                   |
+| 0x8 | CCR7 | 通道7的比较值                                   |
+| 0x20 | pwm_channel_map0 | 通道0到7的PWM通道映射寄存器                          |
+| 0x40 | subpwm1_period | 子计数器1的周期                                  |
+| 0x50 | config | 配置寄存器，Bit 15:使能超时；Bit 14:使能子计数器1；低5位：预分频器 |
+| 0x7f | watchdog | 看门狗寄存器，切换LSB以清除超时标志                       |
+| 0x7e | timeout max high | 超时值高16位                                   |
+| 0x7d | timeout max low | 超时值低16位                                   |
 
+## 版权信息
 
+该FPGA PWM模块是基于GPL 3.0许可证发布的，您可以自由使用、修改和分发该模块。
 
