@@ -4,9 +4,8 @@
     <Version>beta</Version>
     <Device id="GW1N-1" package="QFN32" speed="6" partNumber="GW1N-LV1QN32C6/I5"/>
     <FileList>
-        <File path="E:\projects\I2C_PWM\MyTopLevel.v" type="verilog"/>
         <File path="E:\projects\I2C_PWM\gowin_project\i2c_pwm\src\gowin_osc\gowin_osc.v" type="verilog"/>
-        <File path="E:\projects\I2C_PWM\gowin_project\i2c_pwm\src\wrap.v" type="verilog"/>
+        <File path="E:\projects\I2C_PWM\gowin_project\i2c_pwm\src\SPI_PWM_Top.v" type="verilog"/>
     </FileList>
     <OptionList>
         <Option type="disable_insert_pad" value="0"/>
@@ -15,7 +14,7 @@
         <Option type="output_file" value="E:\projects\I2C_PWM\gowin_project\i2c_pwm\impl\gwsynthesis\i2c_pwm.vg"/>
         <Option type="print_all_synthesis_warning" value="0"/>
         <Option type="ram_rw_check" value="1"/>
-        <Option type="top_module" value="TopWrap"/>
+        <Option type="top_module" value="SPI_PWM_Top"/>
         <Option type="verilog_language" value="verilog-2001"/>
         <Option type="vhdl_language" value="vhdl-1993"/>
     </OptionList>

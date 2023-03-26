@@ -1,73 +1,113 @@
 [
  {
-  "InstFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/wrap.v",
-  "InstLine" : 3,
-  "InstName" : "TopWrap",
-  "ModuleFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/wrap.v",
-  "ModuleLine" : 3,
-  "ModuleName" : "TopWrap",
+  "InstFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
+  "InstLine" : 7,
+  "InstName" : "SPI_PWM_Top",
+  "ModuleFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
+  "ModuleLine" : 7,
+  "ModuleName" : "SPI_PWM_Top",
   "SubInsts" : [
    {
-    "InstFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/wrap.v",
-    "InstLine" : 19,
-    "InstName" : "mytop",
-    "ModuleFile" : "E:/projects/I2C_PWM/MyTopLevel.v",
-    "ModuleLine" : 24,
-    "ModuleName" : "MyTopLevel",
-    "SubInsts" : [
-     {
-      "InstFile" : "E:/projects/I2C_PWM/MyTopLevel.v",
-      "InstLine" : 73,
-      "InstName" : "pwm_1",
-      "ModuleFile" : "E:/projects/I2C_PWM/MyTopLevel.v",
-      "ModuleLine" : 869,
-      "ModuleName" : "PWM"
-     },
-     {
-      "InstFile" : "E:/projects/I2C_PWM/MyTopLevel.v",
-      "InstLine" : 93,
-      "InstName" : "i2c_apb",
-      "ModuleFile" : "E:/projects/I2C_PWM/MyTopLevel.v",
-      "ModuleLine" : 142,
-      "ModuleName" : "Apb3I2cCtrl",
-      "SubInsts" : [
-       {
-        "InstFile" : "E:/projects/I2C_PWM/MyTopLevel.v",
-        "InstLine" : 281,
-        "InstName" : "i2cCtrl",
-        "ModuleFile" : "E:/projects/I2C_PWM/MyTopLevel.v",
-        "ModuleLine" : 2360,
-        "ModuleName" : "I2cSlave",
-        "SubInsts" : [
-         {
-          "InstFile" : "E:/projects/I2C_PWM/MyTopLevel.v",
-          "InstLine" : 2446,
-          "InstName" : "io_i2c_scl_read_buffercc",
-          "ModuleFile" : "E:/projects/I2C_PWM/MyTopLevel.v",
-          "ModuleLine" : 2671,
-          "ModuleName" : "BufferCC"
-         },
-         {
-          "InstFile" : "E:/projects/I2C_PWM/MyTopLevel.v",
-          "InstLine" : 2452,
-          "InstName" : "io_i2c_sda_read_buffercc",
-          "ModuleFile" : "E:/projects/I2C_PWM/MyTopLevel.v",
-          "ModuleLine" : 2671,
-          "ModuleName" : "BufferCC"
-         }
-        ]
-       }
-      ]
-     }
-    ]
-   },
-   {
-    "InstFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/wrap.v",
-    "InstLine" : 34,
+    "InstFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
+    "InstLine" : 44,
     "InstName" : "osc",
     "ModuleFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/gowin_osc/gowin_osc.v",
     "ModuleLine" : 9,
     "ModuleName" : "Gowin_OSC"
+   },
+   {
+    "InstFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
+    "InstLine" : 47,
+    "InstName" : "spi_pwm_1",
+    "ModuleFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
+    "ModuleLine" : 391,
+    "ModuleName" : "SPI_PWM",
+    "SubInsts" : [
+     {
+      "InstFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
+      "InstLine" : 667,
+      "InstName" : "sclk_buffercc",
+      "ModuleFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
+      "ModuleLine" : 2014,
+      "ModuleName" : "BufferCC"
+     },
+     {
+      "InstFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
+      "InstLine" : 673,
+      "InstName" : "mosi_buffercc",
+      "ModuleFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
+      "ModuleLine" : 2014,
+      "ModuleName" : "BufferCC"
+     },
+     {
+      "InstFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
+      "InstLine" : 679,
+      "InstName" : "ss_buffercc",
+      "ModuleFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
+      "ModuleLine" : 2014,
+      "ModuleName" : "BufferCC"
+     }
+    ]
+   },
+   {
+    "InstFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
+    "InstLine" : 70,
+    "InstName" : "spi_slave_ctrl",
+    "ModuleFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
+    "ModuleLine" : 100,
+    "ModuleName" : "Apb3SpiSlaveCtrl",
+    "SubInsts" : [
+     {
+      "InstFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
+      "InstLine" : 177,
+      "InstName" : "spiCtrl",
+      "ModuleFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
+      "ModuleLine" : 1867,
+      "ModuleName" : "SpiSlaveCtrl",
+      "SubInsts" : [
+       {
+        "InstFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
+        "InstLine" : 1920,
+        "InstName" : "io_spi_sclk_buffercc",
+        "ModuleFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
+        "ModuleLine" : 2014,
+        "ModuleName" : "BufferCC"
+       },
+       {
+        "InstFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
+        "InstLine" : 1926,
+        "InstName" : "io_spi_ss_buffercc",
+        "ModuleFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
+        "ModuleLine" : 2014,
+        "ModuleName" : "BufferCC"
+       },
+       {
+        "InstFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
+        "InstLine" : 1932,
+        "InstName" : "io_spi_mosi_buffercc",
+        "ModuleFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
+        "ModuleLine" : 2014,
+        "ModuleName" : "BufferCC"
+       }
+      ]
+     },
+     {
+      "InstFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
+      "InstLine" : 195,
+      "InstName" : "bridge_txLogic_streamUnbuffered_queueWithAvailability",
+      "ModuleFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
+      "ModuleLine" : 1688,
+      "ModuleName" : "StreamFifo"
+     },
+     {
+      "InstFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
+      "InstLine" : 208,
+      "InstName" : "spiCtrl_io_rx_takeWhen_queueWithOccupancy",
+      "ModuleFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
+      "ModuleLine" : 1688,
+      "ModuleName" : "StreamFifo"
+     }
+    ]
    }
   ]
  }

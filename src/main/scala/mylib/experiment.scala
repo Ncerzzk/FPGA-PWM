@@ -5,17 +5,18 @@ import scala.collection.mutable
 
 
 class Experiment extends Component {
-  val addr=in UInt(8 bits)
-  val data = in Bits(16 bits)
-  val s= new RegMem(16 bits,10)
+  val a, b, c = UInt(4 bits)
+  a := 0
+  b := a
+  //a := 1 // assignment overlap with a := 0
+  c := a
 
-  s.add(0x3,"CCR1","")
-  s.add(0x4,"CCR2","")
+  val x = Reg(UInt(4 bits))
+  val y, z = UInt(4 bits)
 
-  s.add(0xff,"Period","")
-
-  s(addr) :=  data
-
+  y := x      // y read x with the value 0
+  x := x + 1
+  z := x
 
 }
 

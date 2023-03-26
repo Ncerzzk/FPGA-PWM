@@ -42,8 +42,6 @@ class SPI_PWM extends Component{
     val config = U("32'h8")
   }
 
-
-
   val regs = new RegMem(16 bits,16)
   val pwm = new PWMArea(regs,8,2)
 
@@ -165,22 +163,39 @@ class SPI_PWM extends Component{
 
 }
 
-class SPI_PWM_Top extends Component{
+class SPI_PWM_Top(forfpga:Boolean = false) extends Component{
   val spi_pins = master(SpiSlave())
-  val spi_pwm = new SPI_PWM
-  val spi_slave_ctrl = Apb3SpiSlaveCtrl(SpiSlaveCtrlMemoryMappedConfig(SpiSlaveCtrlGenerics(),3,3))
+
+  val osc = forfpga.generate(new Gowin_OSC)
+
+  var myClockDomain = ClockDomain.current
+  if(forfpga) {
+    myClockDomain = ClockDomain(osc.io.oscout,clockDomain.reset)
+  }
+
+  val spi_pwm =myClockDomain{
+    new SPI_PWM
+  }
+  val spi_slave_ctrl =myClockDomain{
+    Apb3SpiSlaveCtrl(SpiSlaveCtrlMemoryMappedConfig(SpiSlaveCtrlGenerics(),3,3))
+  }
+
+  val pwm_out = PWMArea.getPWMOutInterfacec(8)
+  pwm_out := spi_pwm.pwm.pwm_out
+
   spi_pwm.interrupt := spi_slave_ctrl.io.interrupt
   spi_pwm.apb_m <> spi_slave_ctrl.io.apb
   spi_slave_ctrl.io.spi <> spi_pins
   spi_pwm.sclk := spi_pins.sclk
   spi_pwm.mosi := spi_pins.mosi
   spi_pwm.ss := spi_pins.ss
+
 }
 
 
-object SPI_PWM_TEST {
+object SPI_PWM_Gen_For_FPGA {
   def main(args: Array[String]) {
     //InOutWrapper
-    SpinalVerilog(new SPI_PWM_Top).printPruned()
+    SpinalVerilog(new SPI_PWM_Top(true)).printPruned()
   }
 }

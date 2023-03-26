@@ -4,25 +4,33 @@
 //GOWIN Version: 1.9.8.06-1
 //Part Number: GW1N-LV1QN32C6/I5
 //Device: GW1N-1
-//Created Time: Sat 07 16 20:27:45 2022
+//Created Time: Sun 03 26 19:44:00 2023
 
-IO_LOC "pwm_ch_out_ch8" 16;
-IO_PORT "pwm_ch_out_ch8"  IO_TYPE=LVCMOS33 PULL_MODE=DOWN DRIVE=8;
-IO_LOC "pwm_ch_out_ch7" 20;
-IO_PORT "pwm_ch_out_ch7" IO_TYPE=LVCMOS33 PULL_MODE=DOWN DRIVE=8;
-IO_LOC "pwm_ch_out_ch6" 17;
-IO_PORT "pwm_ch_out_ch6" IO_TYPE=LVCMOS33 PULL_MODE=DOWN DRIVE=8;
-IO_LOC "pwm_ch_out_ch5" 9;
-IO_PORT "pwm_ch_out_ch5" IO_TYPE=LVCMOS33 PULL_MODE=DOWN DRIVE=8;
-IO_LOC "pwm_ch_out_ch4" 8;
-IO_PORT "pwm_ch_out_ch4" IO_TYPE=LVCMOS33 PULL_MODE=DOWN DRIVE=8;
-IO_LOC "pwm_ch_out_ch3" 5;
-IO_PORT "pwm_ch_out_ch3"  IO_TYPE=LVCMOS33 PULL_MODE=DOWN DRIVE=8;
-IO_LOC "pwm_ch_out_ch2" 4;
-IO_PORT "pwm_ch_out_ch2" IO_TYPE=LVCMOS33 PULL_MODE=DOWN DRIVE=8;
-IO_LOC "pwm_ch_out_ch1" 1;
-IO_PORT "pwm_ch_out_ch1" IO_TYPE=LVCMOS33 PULL_MODE=DOWN DRIVE=8;
-IO_LOC "i2c_sda" 21;
-IO_PORT "i2c_sda" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8 OPEN_DRAIN=ON;
-IO_LOC "i2c_scl" 22;
-IO_PORT "i2c_scl" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8 OPEN_DRAIN=ON;
+IO_LOC "pwm_out_ch7" 16;
+IO_PORT "pwm_out_ch7" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_LOC "pwm_out_ch6" 20;
+IO_PORT "pwm_out_ch6" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_LOC "pwm_out_ch5" 17;
+IO_PORT "pwm_out_ch5" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_LOC "pwm_out_ch4" 9;
+IO_PORT "pwm_out_ch4" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_LOC "pwm_out_ch3" 8;
+IO_PORT "pwm_out_ch3" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_LOC "pwm_out_ch2" 5;
+IO_PORT "pwm_out_ch2" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_LOC "pwm_out_ch1" 4;
+IO_PORT "pwm_out_ch1" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_LOC "pwm_out_ch0" 1;
+IO_PORT "pwm_out_ch0" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_PORT "spi_pins_miso_writeEnable" IO_TYPE=LVCMOS33;
+IO_LOC "spi_pins_miso_write" 11;
+IO_PORT "spi_pins_miso_write" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_PORT "reset" IO_TYPE=LVCMOS33 PULL_MODE=DOWN;
+IO_LOC "spi_pins_ss" 10;
+IO_PORT "spi_pins_ss" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_LOC "spi_pins_mosi" 12;
+IO_PORT "spi_pins_mosi" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_LOC "spi_pins_sclk" 26;
+IO_PORT "spi_pins_sclk" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+CLOCK_LOC "osc_oscout" BUFG[0] = CLK;
+CLOCK_LOC "reset_d" BUFG[1] = SR;

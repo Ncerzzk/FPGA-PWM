@@ -24,6 +24,13 @@ class RegMem(bitcount:BitCount,size:Int) extends Area{
   val decodeMap = mutable.Map[(Component,UInt), UInt]()
   val accessMap = mutable.Map[(Component,UInt), Bits]()
 
+  Component.current.addPrePopTask(() => {
+    assert(regsMap.size <= size)
+    for( (addr,reg) <- regsMap){
+      println(f"offset:0x$addr%x  name:${reg.name}  desc:${reg.desc}")
+    }
+  })
+
   def decode(in:Int):Int={
     for( ((addr,_),index) <- regsMap.zipWithIndex){
       if(in==addr){

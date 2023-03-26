@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Module name="TopWrap">
-    <SubModule name="mytop">
-        <SubModule name="pwm_1" Register="383" Alu="132" Lut="728"/>
-        <SubModule name="i2c_apb" Register="102" Alu="17" Lut="131">
-            <SubModule name="i2cCtrl" Register="49" Lut="91">
-                <SubModule name="io_i2c_scl_read_buffercc" Register="2"/>
-                <SubModule name="io_i2c_sda_read_buffercc" Register="2"/>
-            </SubModule>
-        </SubModule>
-    </SubModule>
+<Module name="SPI_PWM_Top">
     <SubModule name="osc"/>
+    <SubModule name="spi_pwm_1" Register="412" Alu="101" Lut="712">
+        <SubModule name="sclk_buffercc" Register="1"/>
+        <SubModule name="mosi_buffercc" Register="1"/>
+        <SubModule name="ss_buffercc" Register="1"/>
+    </SubModule>
+    <SubModule name="spi_slave_ctrl" Register="10" Lut="31">
+        <SubModule name="spiCtrl" Register="15" Lut="18">
+            <SubModule name="io_spi_sclk_buffercc" Register="1"/>
+            <SubModule name="io_spi_ss_buffercc" Register="1"/>
+            <SubModule name="io_spi_mosi_buffercc" Register="1"/>
+        </SubModule>
+        <SubModule name="bridge_txLogic_streamUnbuffered_queueWithAvailability" Register="46" Lut="31"/>
+        <SubModule name="spiCtrl_io_rx_takeWhen_queueWithOccupancy" Register="46" Lut="30"/>
+    </SubModule>
 </Module>

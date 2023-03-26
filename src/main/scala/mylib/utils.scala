@@ -37,6 +37,21 @@ class Sequencer extends Area {
   })
 }
 
+class Gowin_OSC extends BlackBox{
+  val io = new Bundle {
+    val oscout = out Bool()
+  }
+  addRTLPath("gowin_ip/Gowin_OSC.v")
+  noIoPrefix()
+}
+
+class OSCH extends BlackBox{
+  val io = new Bundle{
+    val oscout = out Bool()
+  }
+  noIoPrefix()
+}
+
 class APB3OperationArea(apb_m:Apb3) extends Area{
   import APB3Phase._
   val phase = RegInit(SETUP) //optimization for faster apb access

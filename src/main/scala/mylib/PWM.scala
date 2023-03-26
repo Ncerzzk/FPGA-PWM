@@ -1,5 +1,6 @@
 package mylib
 
+import mylib.PWMArea.getPWMOutInterfacec
 import spinal.core._
 import spinal.core.sim._
 
@@ -25,7 +26,7 @@ class SubPWM(enable:Bool,val period:UInt =Reg(UInt(16 bits)).init(2000) ) extend
 object PWMArea{
 
   def getPWMRegs(regs:RegMem,subPWMNum:Int,pwmChannelNum:Int)=new Area{
-    regs.add(0x0,"subpwm0_period","")
+    regs.add(0x0,"subpwm0_period","period of sub counter 0")
     val ccrs_regs:ListBuffer[Bits]=ListBuffer()
     val pwm_channel_map_regs:ListBuffer[Bits]=ListBuffer()
     val subpwm_period_regs:ListBuffer[Bits]=ListBuffer()
@@ -33,42 +34,44 @@ object PWMArea{
     subpwm_period_regs+=regs(0)
 
     for(i <- 0 until pwmChannelNum){
-      regs.add(i+1,s"CCR${i}","")
+      regs.add(i+1,s"CCR${i}",s"compare value of channel ${i}")
       ccrs_regs += regs(i+1)
     }
 
-    for(i<- 0 until 1 + pwmChannelNum*2/16){
-      regs.add(0x20+i,s"pwm_channel_map${i}","")
+    for(i<- 0 until pwmChannelNum*2/16){
+      regs.add(0x20+i,s"pwm_channel_map${i}",s"pwm channel mapping reg for channel ${i/8} to ${i/8+8}")
       pwm_channel_map_regs += regs(0x20+i)
     }
 
     for(i<- 0 until subPWMNum-1){
-      regs.add(0x40+i,s"subpwm${i}_period","")
+      regs.add(0x40+i,s"subpwm${i+1}_period",s"period of sub counter ${i+1}")
       subpwm_period_regs += regs(0x40+i)
     }
 
-    regs.add(0x50,"config","")
+    regs.add(0x50,"config","config reg. Bit 15:enable timeout; Bit 14: enable sub counter 1; Low 5 bits:predivider")
     val config=regs(0x50)
 
-    regs.add(0x7F,"watchdog","")
+    regs.add(0x7F,"watchdog","watchdog reg. toggle the lsb to clear the timeout flag")
     val watchdog=regs(0x7F)
 
-    regs.add(0x7E,"timeout max high","")
-    regs.add(0x7D,"timeout max low","")
+    regs.add(0x7E,"timeout max high","timeout value. high 16 bits")
+    regs.add(0x7D,"timeout max low","timeout value. low 16 bits")
     val timeout_max_high=regs(0x7E)
     val timeout_max_low=regs(0x7D)
 
 
   }
+
+  def getPWMOutInterfacec(pwmChannelNum:Int)=new Bundle{
+    for (i <- 0 until pwmChannelNum) {
+      valCallback(out Bool(), "ch" + (i).toString)
+    }
+  }
 }
 
 class PWMArea(val regs:RegMem,channel_num:Int=4, sub_PWM_num:Int=2,timeout_ext:Boolean=true) extends Area {
   assert(sub_PWM_num >= 1)
-  val pwm_out = new Bundle {
-    for (i <- 0 until channel_num) {
-      valCallback(out Bool(), "ch" + (i).toString)
-    }
-  }
+  val pwm_out = getPWMOutInterfacec(channel_num)
 
   val pwm_regs = PWMArea.getPWMRegs(regs, sub_PWM_num, channel_num)
 
@@ -151,12 +154,13 @@ object PWM_DutTests {
       val a = new PWMTestComponent
       a.regs.data.simPublic()
       a.pwm.sub_pwms(0).counter.simPublic()
+      a.pwm.sub_pwms(1).counter.simPublic()
       a.pwm.pwm_area.timeout_area.counter.simPublic()
       a.pwm.pwm_area.timeout_area.flag.simPublic()
       a
     }
 
-    compile.doSim("pwm basic test"){
+    compile.doSim("pwm basic"){
       dut=>
         dut.clockDomain.forkStimulus(period = 2)
         dut.regs.data.setBigInt(0,99)
@@ -177,7 +181,32 @@ object PWM_DutTests {
         assert(dut.pwm.sub_pwms(0).counter.toInt == 0)
         dut.clockDomain.waitSampling(150)
     }
+    compile.doSim("pwm map"){
+      dut=>
+        dut.clockDomain.forkStimulus(period = 2)
+        dut.regs.data.setBigInt(0,99)   // set sub_pwm 0 period
+        dut.regs.data.setBigInt(dut.regs.decode(0x40),199)  // set sub_pwm 1 period
+        dut.regs.data.setBigInt(dut.regs.decode(0x50),1<<14) //enable sub_pwm 1
+        dut.regs.data.setBigInt(1,50)  // set ccr0
+        dut.regs.data.setBigInt(2,50)  // set ccr1
 
+        dut.regs.data.setBigInt(dut.regs.decode(0x20),0x01<<2)  // map ccr1 to sub_pwm 1
+
+        waitUntil(dut.pwm.sub_pwms(1).counter.toInt == 120)
+        assert(dut.pwm.pwm_out.elements(0)._2.asInstanceOf[Bool].toBoolean)
+        assert(!dut.pwm.pwm_out.elements(1)._2.asInstanceOf[Bool].toBoolean)
+
+    }
+    compile.doSim("pwm predivider"){
+      dut=>
+        dut.clockDomain.forkStimulus(period = 2)
+        dut.regs.data.setBigInt(0,99)   // set sub_pwm 0 period
+        dut.regs.data.setBigInt(dut.regs.decode(0x50),1)
+        dut.clockDomain.waitSampling(100)
+
+        assert(dut.pwm.sub_pwms(0).counter.toInt == 49)
+
+    }
     compile.doSim("pwm timeout"){
       dut=>
         dut.clockDomain.forkStimulus(period = 2)

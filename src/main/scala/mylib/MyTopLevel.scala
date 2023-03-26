@@ -535,17 +535,13 @@ class PWM(channel_num:Int=4, sub_PWM_num:Int=2,timeout_ext:Boolean=true) extends
   }
 }
 
-class Gowin_OSC extends BlackBox{
-  val oscout=out Bool()
-}
-
 //Hardware definition
 class MyTopLevel extends Component {
 
   val i2c = master(I2c())
   //val ch1_out = out Bool()
   val pwm = new PWM(8)
-  //val gowin= new Gowin_OSC()
+
   val pwm_ch_out=pwm.pwm_out.clone()
   for (i <- pwm_ch_out.elements){
     i._2.asOutput()
