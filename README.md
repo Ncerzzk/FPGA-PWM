@@ -7,9 +7,9 @@ This module is designed for generating pulse-width modulation (PWM) signals on a
 - Supports SPI and I2C communication protocols
 - Up to 8 channels of PWM output
 - 2 sub-counters that can generate signals with different frequencies
-- Supports a maximum SPI communication speed of 20MHz
+- Supports a maximum SPI communication speed of 15MHz
 - Supports a maximum I2C communication speed of 400kHz
-- Uses 397 LUTs and 447 FFs in Gowin FPGA GW1N-LV1
+- Uses 923 LUTs and 535 FFs in Gowin FPGA GW1N-LV1
 
 ## Registers
 
@@ -46,7 +46,7 @@ This module is licensed under the GPL 3.0 license. Please see the [LICENSE](LICE
 
 # FPGA PWM模块
 
-该FPGA PWM模块可以在FPGA上实现PWM输出。模块支持SPI/I2C协议，最多支持8个通道以及2个子计数器（可以生成2种不同频率）。模块已经在Gowin FPGA GW1N-LV1上进行过测试，消耗资源为397个LUT和447个FF。
+该FPGA PWM模块可以在FPGA上实现PWM输出。模块支持SPI/I2C协议，最多支持8个通道以及2个子计数器（可以生成2种不同频率）。模块已经在Gowin FPGA GW1N-LV1上进行过测试，消耗资源为923个LUT和535个FF。
 
 ## 寄存器映射
 

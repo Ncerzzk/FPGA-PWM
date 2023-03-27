@@ -62,7 +62,7 @@ object SPI_PWM_DutTests {
       a
     }
 
-    def testSPIMaster(spipins:SpiSlave)=simSpiMaster(spipins,210,70)
+    def testSPIMaster(spipins:SpiSlave)=simSpiMaster(spipins,240,5)
 
     compile.doSim("test apb operation"){
       dut=>
@@ -80,11 +80,11 @@ object SPI_PWM_DutTests {
         fork{
           //waitUntil(dut.spi_pwm.inited.toBoolean)
           sleep(100)
-          master.transfer(Array(1,2,3))
+          master.transfer(Array(1,0xff,3))
           sleep(100)
         }.join()
 
-        assert(dut.spi_pwm.regs.data.getBigInt(0)==0x0203)
+        assert(dut.spi_pwm.regs.data.getBigInt(0)==0xff03)
     }
 
     def spi_read_test(addr:Int): Unit ={

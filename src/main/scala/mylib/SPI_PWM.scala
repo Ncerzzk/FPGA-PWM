@@ -58,6 +58,7 @@ class SPI_PWM extends Component{
     val sclk_count = Counter(8)
     val sclk_cnt_start = RegInit(False)
     val temp_rx = Reg(Bits(8 bits)).init(0)
+    val sclk_rise= sclk_sync.rise()
 
     always{
       when(ss_sync && !isActive(being_written)){  //handle ss -> high situation
@@ -87,12 +88,13 @@ class SPI_PWM extends Component{
       sclk_count.clear()
     }
 
-    when(sclk_cnt_start && sclk_sync.rise()){
+    when(sclk_cnt_start && sclk_rise){
       sclk_count.increment()
       temp_rx := (temp_rx ## mosi_sync).resized
       // only work at cpol 0, cpha 0
       // handle the first rx byte by ourself, to make the module could run at high sclk freq
     }
+    val readwrite_bit = RegInit(False)
     start_transfer.whenIsActive {
       val reg_data = Reg(Bits(16 bits)).init(0)
       new Sequencer()
@@ -106,9 +108,12 @@ class SPI_PWM extends Component{
         }
         .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.data,reg_data.takeHigh(8).resize(32)))
         .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.data,reg_data.takeLow(8).resize(32)))
-        .addStep(sclk_count.value===0)
         .addStep{
-           when(temp_rx.lsb)(goto(being_written)).otherwise(goto(idle))
+          readwrite_bit := temp_rx.lsb   // save read write bit here, because we will wait one more sclk to jump to next state(being written or idle)
+          sclk_count.value === U(0)}
+        .addStep(sclk_rise)   // wait one more sclk, to fix wrong interrupt assert in slow sclk case
+        .addStep{
+           when(readwrite_bit)(goto(being_written)).otherwise(goto(idle))
            True
         }
     }
