@@ -60,17 +60,40 @@ class SPI_PWM extends Component{
     val temp_rx = Reg(Bits(8 bits)).init(0)
     val sclk_rise= sclk_sync.rise()
 
+    val ss_has_fallen = RegInit(False)
+
     always{
       when(ss_sync && !isActive(being_written)){  //handle ss -> high situation
         goto(idle)
       }
+
+      when(ss_sync.fall()){
+        ss_has_fallen := True
+        temp_rx := B(0)
+      }
+
+      /*
+      Previously, we started receiving temp_rx only after entering start_transfer.
+      However, in some cases where there are consecutive SPI read/write operations
+      (i.e., short duration of SS high level), it is possible that two or three
+      SCLK pulses have already passed by the time we reach start_transfer.
+      Therefore, we need to start receiving temp_rx as soon as SS goes low.
+       */
+      when((ss_has_fallen || isActive(start_transfer)) && sclk_rise){
+        sclk_count.increment()
+        temp_rx := (temp_rx ## mosi_sync).resized
+      }
+
+
     }
 
     idle.whenIsActive {
       new Sequencer()
-        .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.status, SpiSlaveCtrlInt.ssEnabledIntEnable | SpiSlaveCtrlInt.ssDisabledIntClear))
         .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.config,0x00)) // set cpol and cpha
-        .addStep(interrupt)
+        .addStep {
+          ss_has_fallen := False
+          ss_has_fallen
+        }
         .addStep{
           goto(start_transfer)
           True
@@ -78,21 +101,8 @@ class SPI_PWM extends Component{
 
     }
 
-    start_transfer.onEntry{
-      sclk_cnt_start:=True
-      temp_rx:=B(0).resized
-    }
-
     start_transfer.onExit{
-      sclk_cnt_start:=False
       sclk_count.clear()
-    }
-
-    when(sclk_cnt_start && sclk_rise){
-      sclk_count.increment()
-      temp_rx := (temp_rx ## mosi_sync).resized
-      // only work at cpol 0, cpha 0
-      // handle the first rx byte by ourself, to make the module could run at high sclk freq
     }
     val readwrite_bit = RegInit(False)
     start_transfer.whenIsActive {
@@ -123,9 +133,19 @@ class SPI_PWM extends Component{
       val data = Reg(Bits(8 bits)).init(0)
       val ptr = Reg(cloneOf(reg_addr)).init(0)
       val is_high_8bit = RegInit(True)
+      val ss_has_rised = RegInit(False)
+
+
+      always{
+        when(ss_sync.rise()){
+          ss_has_rised := True
+        }
+      }
 
       val init:State = new State with EntryPoint{
         whenIsActive {
+          is_high_8bit := True   // init the flag to high to fix the misaligned registers issue after a corrupt write sequence
+          ss_has_rised := False
           apb_operation.write_t(spi_slave_regs.status,
             SpiSlaveCtrlInt.rxIntEnable  | SpiSlaveCtrlInt.rxListen) {
             ptr := reg_addr
@@ -137,7 +157,13 @@ class SPI_PWM extends Component{
       val wait_s:State = new State{
         whenIsActive{
           when(interrupt)(goto(read)).otherwise{
-            when(ss_sync)(exitFsm())
+           when(ss_has_rised){
+              exitFsm()
+           }
+          }
+
+          when(is_high_8bit.rise()) {
+            ptr := ptr + 1
           }
         }
       }
@@ -155,12 +181,6 @@ class SPI_PWM extends Component{
           }
         }
       }
-      always {
-        when(is_high_8bit.rise()) {
-          ptr := ptr + 1
-        }
-      }
-
     }
 
 

@@ -150,8 +150,29 @@ object SPI_PWM_DutTests {
         assert(dut.spi_pwm.regs.data.getBigInt(1) == 0x0203)
         assert(dut.spi_pwm.regs.data.getBigInt(2) == 0x0405)
         assert(dut.spi_pwm.regs.data.getBigInt(3) == 0x0607)
+    }
+
+    compile.doSim("read write after a corrupt write sequence"){
+      dut=>
+        dut.clockDomain.forkStimulus(period = 2)
+        val master = testSPIMaster(dut.spi_pins)
+        dut.clockDomain.waitSampling(50)
+        master.transfer(Array(0x2 | 1,0x07))  //   write 1 byte and then stop.
+        master.transfer(Array(0x0 | 1,0x07,0xd0))  // write 2000 to reg 0
+        master.transfer(Array(0x1<<1 | 1,0x03,0xe8)) // write 1000 to reg 1
+
+        def get_data(ret:Seq[Int])={
+          ret(1) <<8 | ret(2)
+        }
+        var ret = master.transfer(Array(0x00 | 0,0,0))
+        println(get_data(ret).toHexString)
+        assert(get_data(ret) == 2000)
+        ret = master.transfer(Array(0x01<<1 | 0,0,0))
+        assert(get_data(ret) == 1000)
+        dut.clockDomain.waitSampling(50)
 
     }
   }
+
 }
 
