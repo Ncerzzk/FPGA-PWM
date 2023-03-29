@@ -11,24 +11,24 @@
   <PnR Version>: V1.9.8.06-1
   <Part Number>: GW1N-LV1QN32C6/I5
   <Device>: GW1N-1
-  <Created Time>:Sun Mar 26 19:44:10 2023
+  <Created Time>:Tue Mar 28 20:31:01 2023
 
 
 2. PnR Details
 
   Running placement:
-    Placement Phase 0: CPU time = 0h 0m 0.07s, Elapsed time = 0h 0m 0.07s
-    Placement Phase 1: CPU time = 0h 0m 0.029s, Elapsed time = 0h 0m 0.029s
-    Placement Phase 2: CPU time = 0h 0m 0.1s, Elapsed time = 0h 0m 0.1s
-    Placement Phase 3: CPU time = 0h 0m 0.908s, Elapsed time = 0h 0m 0.908s
+    Placement Phase 0: CPU time = 0h 0m 0.082s, Elapsed time = 0h 0m 0.083s
+    Placement Phase 1: CPU time = 0h 0m 0.047s, Elapsed time = 0h 0m 0.047s
+    Placement Phase 2: CPU time = 0h 0m 0.124s, Elapsed time = 0h 0m 0.123s
+    Placement Phase 3: CPU time = 0h 0m 1s, Elapsed time = 0h 0m 1s
     Total Placement: CPU time = 0h 0m 1s, Elapsed time = 0h 0m 1s
  Running routing:
     Routing Phase 0: CPU time = 0h 0m 0.001s, Elapsed time = 0h 0m 0.001s
-    Routing Phase 1: CPU time = 0h 0m 0.023s, Elapsed time = 0h 0m 0.023s
-    Routing Phase 2: CPU time = 0h 0m 0.531s, Elapsed time = 0h 0m 0.531s
-    Total Routing: CPU time = 0h 0m 0.555s, Elapsed time = 0h 0m 0.555s
+    Routing Phase 1: CPU time = 0h 0m 0.029s, Elapsed time = 0h 0m 0.029s
+    Routing Phase 2: CPU time = 0h 0m 0.549s, Elapsed time = 0h 0m 0.549s
+    Total Routing: CPU time = 0h 0m 0.579s, Elapsed time = 0h 0m 0.579s
  Generate output files:
-    CPU time = 0h 0m 0.236s, Elapsed time = 0h 0m 0.236s
+    CPU time = 0h 0m 0.264s, Elapsed time = 0h 0m 0.265s
 
  Total Time and Memory Usage: CPU time = 0h 0m 2s, Elapsed time = 0h 0m 2s, Peak memory usage = 166MB
 
@@ -38,15 +38,15 @@
   ----------------------------------------------------------
   Resources                   | Usage
   ----------------------------------------------------------
-  Logic                       | 934/1152  81%
-    --LUT,ALU,ROM16           | 934(821 LUT, 113 ALU, 0 ROM16)
+  Logic                       | 936/1152  81%
+    --LUT,ALU,ROM16           | 936(823 LUT, 113 ALU, 0 ROM16)
     --SSRAM(RAM16)            | 0
-  Register                    | 535/918  58%
+  Register                    | 537/918  58%
     --Logic Register as Latch | 0/864  0%
-    --Logic Register as FF    | 535/864  61%
+    --Logic Register as FF    | 537/864  62%
     --I/O Register as Latch   | 0/54  0%
     --I/O Register as FF      | 0/54  0%
-  CLS                         | 548/576  95%
+  CLS                         | 558/576  96%
   I/O Port                    | 14
   I/O Buf                     | 14
     --Input Buf               | 4
@@ -110,9 +110,9 @@ Port Name                  | Diff Pair | Loc./Bank     | Constraint | Dir.  | Si
 spi_pins_sclk              |           | 26/3          | Y          | in    | IOL6[C]  | LVCMOS33   | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | OFF             | NA            | 3.3       
 spi_pins_mosi              |           | 12/1          | Y          | in    | IOR6[F]  | LVCMOS33   | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | OFF             | NA            | 3.3       
 spi_pins_ss                |           | 10/1          | Y          | in    | IOR6[H]  | LVCMOS33   | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | OFF             | NA            | 3.3       
-reset                      |           | 6/2           | N          | in    | IOB16[A] | LVCMOS33   | NA    | DOWN      | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3       
+reset                      |           | 32/3          | N          | in    | IOL10[A] | LVCMOS33   | NA    | DOWN      | NA        | NONE       | NA         | NA        | NA         | OFF             | NA            | 3.3       
 spi_pins_miso_write        |           | 11/1          | Y          | out   | IOR6[G]  | LVCMOS33   | 8     | UP        | NA        | NA         | OFF        | FAST      | NA         | OFF             | NA            | 3.3       
-spi_pins_miso_writeEnable  |           | 32/3          | N          | out   | IOL10[A] | LVCMOS33   | 8     | UP        | NA        | NA         | OFF        | FAST      | NA         | OFF             | NA            | 3.3       
+spi_pins_miso_writeEnable  |           | 6/2           | N          | out   | IOB16[A] | LVCMOS33   | 8     | UP        | NA        | NA         | OFF        | FAST      | NA         | NA              | NA            | 3.3       
 pwm_out_ch0                |           | 1/3           | Y          | out   | IOL10[B] | LVCMOS33   | 8     | UP        | NA        | NA         | OFF        | FAST      | NA         | OFF             | NA            | 3.3       
 pwm_out_ch1                |           | 4/2           | Y          | out   | IOB11[A] | LVCMOS33   | 8     | UP        | NA        | NA         | OFF        | FAST      | NA         | NA              | NA            | 3.3       
 pwm_out_ch2                |           | 5/2           | Y          | out   | IOB11[B] | LVCMOS33   | 8     | UP        | NA        | NA         | OFF        | FAST      | NA         | NA              | NA            | 3.3       
@@ -138,7 +138,7 @@ Loc./Bank| Signal                     | Dir.  | Site     | IO Type  | Drive | Pu
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 4/2      | pwm_out_ch1                | out   | IOB11[A] | LVCMOS33 | 8     | UP        | NA        | NA         | OFF        | FAST      | NA         | NA              | NA            | 3.3  
 5/2      | pwm_out_ch2                | out   | IOB11[B] | LVCMOS33 | 8     | UP        | NA        | NA         | OFF        | FAST      | NA         | NA              | NA            | 3.3  
-6/2      | reset                      | in    | IOB16[A] | LVCMOS33 | NA    | DOWN      | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
+6/2      | spi_pins_miso_writeEnable  | out   | IOB16[A] | LVCMOS33 | 8     | UP        | NA        | NA         | OFF        | FAST      | NA         | NA              | NA            | 3.3  
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 24/3     | -                          | in    | IOL6[A]  | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
 25/3     | -                          | in    | IOL6[B]  | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
@@ -147,7 +147,7 @@ Loc./Bank| Signal                     | Dir.  | Site     | IO Type  | Drive | Pu
 28/3     | -                          | out   | IOL6[E]  | LVCMOS18 | 8     | UP        | NA        | NA         | OFF        | FAST      | NA         | NA              | NA            | 3.3  
 29/3     | -                          | in    | IOL7[A]  | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
 30/3     | -                          | in    | IOL7[B]  | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
-32/3     | spi_pins_miso_writeEnable  | out   | IOL10[A] | LVCMOS33 | 8     | UP        | NA        | NA         | OFF        | FAST      | NA         | OFF             | NA            | 3.3  
+32/3     | reset                      | in    | IOL10[A] | LVCMOS33 | NA    | DOWN      | NA        | NONE       | NA         | NA        | NA         | OFF             | NA            | 3.3  
 1/3      | pwm_out_ch0                | out   | IOL10[B] | LVCMOS33 | 8     | UP        | NA        | NA         | OFF        | FAST      | NA         | OFF             | NA            | 3.3  
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 17/1     | pwm_out_ch5                | out   | IOR2[A]  | LVCMOS33 | 8     | UP        | NA        | NA         | OFF        | FAST      | NA         | OFF             | NA            | 3.3  

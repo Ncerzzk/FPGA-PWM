@@ -1,6 +1,6 @@
 // Generator : SpinalHDL v1.7.0    git head : eca519e78d4e6022e34911ec300a432ed9db8220
 // Component : SPI_PWM_Top
-// Git hash  : 59e80837b87222d6971a7a38fbe620402950876f
+// Git hash  : 4e23e2aa2656bbe1906392bdc1b138c06ffa3ae8
 
 `timescale 1ns/1ps
 
@@ -474,12 +474,12 @@ module SPI_PWM (
   wire       [3:0]    _zz_pwm_pwm_area_channels_7_output;
   wire       [2:0]    _zz_spi_fsm_sclk_count_valueNext;
   wire       [0:0]    _zz_spi_fsm_sclk_count_valueNext_1;
-  wire       [8:0]    _zz_spi_fsm_temp_rx;
   wire       [15:0]   _zz_regs_data_port_15;
   wire       [7:0]    _zz_apb_m_PWDATA_2;
   wire       [7:0]    _zz_apb_m_PWDATA_3;
+  wire       [8:0]    _zz_spi_fsm_temp_rx;
   reg        [3:0]    _zz_when_utils_l25;
-  reg        [2:0]    _zz_when_utils_l25_1;
+  reg        [1:0]    _zz_when_utils_l25_1;
   reg                 _zz_1;
   wire                sclk_sync;
   wire                mosi_sync;
@@ -561,53 +561,57 @@ module SPI_PWM (
   reg        [7:0]    spi_fsm_being_written_fsm_data;
   reg        [6:0]    spi_fsm_being_written_fsm_ptr;
   reg                 spi_fsm_being_written_fsm_is_high_8bit;
+  reg                 spi_fsm_being_written_fsm_ss_has_rised;
   reg                 spi_fsm_sclk_count_willIncrement;
   reg                 spi_fsm_sclk_count_willClear;
   reg        [2:0]    spi_fsm_sclk_count_valueNext;
   reg        [2:0]    spi_fsm_sclk_count_value;
   wire                spi_fsm_sclk_count_willOverflowIfInc;
   wire                spi_fsm_sclk_count_willOverflow;
-  reg                 spi_fsm_sclk_cnt_start;
+  wire                spi_fsm_sclk_cnt_start;
   reg        [7:0]    spi_fsm_temp_rx;
   reg                 sclk_sync_regNext;
-  wire                when_SPI_PWM_l90;
+  wire                spi_fsm_sclk_rise;
+  reg                 spi_fsm_ss_has_fallen;
+  reg                 spi_fsm_readwrite_bit;
   reg        [1:0]    spi_fsm_being_written_fsm_stateReg;
   reg        [1:0]    spi_fsm_being_written_fsm_stateNext;
+  reg                 spi_fsm_being_written_fsm_is_high_8bit_regNext;
+  wire                when_SPI_PWM_l165;
   wire       [7:0]    _zz_spi_fsm_being_written_fsm_data;
   reg        [3:0]    _zz_2;
-  reg                 spi_fsm_being_written_fsm_is_high_8bit_regNext;
-  wire                when_SPI_PWM_l154;
+  reg                 ss_sync_regNext;
+  wire                when_SPI_PWM_l140;
   reg        [1:0]    spi_fsm_stateReg;
   reg        [1:0]    spi_fsm_stateNext;
-  wire                _zz_when_StateMachine_l229;
-  wire                _zz_when_StateMachine_l229_1;
   wire                when_utils_l25;
   wire                when_utils_l25_1;
   wire                when_utils_l25_2;
-  wire                when_utils_l25_3;
   wire                when_utils_l26;
   wire                when_utils_l34;
   reg        [15:0]   _zz_apb_m_PWDATA;
+  wire                when_utils_l25_3;
   wire                when_utils_l25_4;
   wire                when_utils_l25_5;
-  wire                when_utils_l25_6;
   wire                when_utils_l26_1;
-  wire                when_utils_l25_7;
+  wire                when_utils_l25_6;
   wire       [6:0]    switch_Regs_l47;
   reg        [3:0]    _zz_apb_m_PWDATA_1;
   wire                when_utils_l26_2;
+  wire                when_utils_l25_7;
   wire                when_utils_l25_8;
   wire                when_utils_l25_9;
-  wire                when_utils_l25_10;
   wire                when_utils_l26_3;
+  wire                when_utils_l25_10;
   wire                when_utils_l25_11;
-  wire                when_SPI_PWM_l111;
   wire                when_utils_l26_4;
   wire                when_utils_l34_1;
   wire                when_StateMachine_l229;
   wire                when_StateMachine_l245;
-  wire                when_StateMachine_l245_1;
-  wire                when_SPI_PWM_l63;
+  wire                when_SPI_PWM_l66;
+  reg                 ss_sync_regNext_1;
+  wire                when_SPI_PWM_l70;
+  wire                when_SPI_PWM_l82;
   `ifndef SYNTHESIS
   reg [63:0] apb_operation_phase_string;
   reg [47:0] spi_fsm_being_written_fsm_stateReg_string;
@@ -627,9 +631,9 @@ module SPI_PWM (
   assign _zz_pwm_pwm_area_channels_6_output_1 = {1'd0, _zz_pwm_pwm_area_channels_6_output};
   assign _zz_spi_fsm_sclk_count_valueNext_1 = spi_fsm_sclk_count_willIncrement;
   assign _zz_spi_fsm_sclk_count_valueNext = {2'd0, _zz_spi_fsm_sclk_count_valueNext_1};
-  assign _zz_spi_fsm_temp_rx = {spi_fsm_temp_rx,mosi_sync};
   assign _zz_apb_m_PWDATA_2 = _zz_apb_m_PWDATA[15 : 8];
   assign _zz_apb_m_PWDATA_3 = _zz_apb_m_PWDATA[7 : 0];
+  assign _zz_spi_fsm_temp_rx = {spi_fsm_temp_rx,mosi_sync};
   assign _zz__zz_pwm_sub_pwms_0_period_buf = 4'b0000;
   assign _zz_pwm_pwm_area_channels_7_output = 4'b1000;
   assign _zz__zz_switch_Misc_l211 = 4'b1001;
@@ -640,7 +644,7 @@ module SPI_PWM (
   assign _zz_pwm_pwm_regs_timeout_max_low = 4'b1110;
   assign _zz_regs_data_port_15 = {spi_fsm_being_written_fsm_data,_zz_spi_fsm_being_written_fsm_data};
   initial begin
-    $readmemb("E:\\projects\\I2C_PWM\\tmp\\job_1\\SPI_PWM_Top.v_toplevel_spi_pwm_1_regs_data.bin",regs_data);
+    $readmemb("SPI_PWM_Top.v_toplevel_spi_pwm_1_regs_data.bin",regs_data);
   end
   assign _zz_regs_data_port0 = regs_data[_zz__zz_pwm_sub_pwms_0_period_buf];
   assign _zz_regs_data_port1 = regs_data[_zz_pwm_pwm_area_channels_0_output_1];
@@ -807,7 +811,7 @@ module SPI_PWM (
       spi_fsm_enumDef_being_written : begin
       end
       spi_fsm_enumDef_start_transfer : begin
-        if(when_utils_l25_7) begin
+        if(when_utils_l25_6) begin
           case(switch_Regs_l47)
             7'h0 : begin
             end
@@ -1047,35 +1051,29 @@ module SPI_PWM (
             apb_operation_transfer = 1'b0;
           end
         end
-        if(when_utils_l25_1) begin
+      end
+      spi_fsm_enumDef_being_written : begin
+      end
+      spi_fsm_enumDef_start_transfer : begin
+        if(when_utils_l25_3) begin
           apb_operation_transfer = 1'b1;
           if(apb_m_PENABLE) begin
             apb_operation_transfer = 1'b0;
           end
         end
-      end
-      spi_fsm_enumDef_being_written : begin
-      end
-      spi_fsm_enumDef_start_transfer : begin
         if(when_utils_l25_4) begin
           apb_operation_transfer = 1'b1;
           if(apb_m_PENABLE) begin
             apb_operation_transfer = 1'b0;
           end
         end
-        if(when_utils_l25_5) begin
+        if(when_utils_l25_7) begin
           apb_operation_transfer = 1'b1;
           if(apb_m_PENABLE) begin
             apb_operation_transfer = 1'b0;
           end
         end
         if(when_utils_l25_8) begin
-          apb_operation_transfer = 1'b1;
-          if(apb_m_PENABLE) begin
-            apb_operation_transfer = 1'b0;
-          end
-        end
-        if(when_utils_l25_9) begin
           apb_operation_transfer = 1'b1;
           if(apb_m_PENABLE) begin
             apb_operation_transfer = 1'b0;
@@ -1117,25 +1115,22 @@ module SPI_PWM (
     case(spi_fsm_stateReg)
       spi_fsm_enumDef_idle : begin
         if(when_utils_l25) begin
-          apb_m_PWDATA = 32'h00002004;
-        end
-        if(when_utils_l25_1) begin
           apb_m_PWDATA = 32'h0;
         end
       end
       spi_fsm_enumDef_being_written : begin
       end
       spi_fsm_enumDef_start_transfer : begin
-        if(when_utils_l25_4) begin
+        if(when_utils_l25_3) begin
           apb_m_PWDATA = 32'h00001000;
         end
-        if(when_utils_l25_5) begin
+        if(when_utils_l25_4) begin
           apb_m_PWDATA = 32'h000000ff;
         end
-        if(when_utils_l25_8) begin
+        if(when_utils_l25_7) begin
           apb_m_PWDATA = {24'd0, _zz_apb_m_PWDATA_2};
         end
-        if(when_utils_l25_9) begin
+        if(when_utils_l25_8) begin
           apb_m_PWDATA = {24'd0, _zz_apb_m_PWDATA_3};
         end
       end
@@ -1182,7 +1177,7 @@ module SPI_PWM (
       end
       spi_fsm_being_written_fsm_enumDef_wait_s : begin
         if(!interrupt) begin
-          if(ss_sync) begin
+          if(spi_fsm_being_written_fsm_ss_has_rised) begin
             spi_fsm_being_written_fsm_wantExit = 1'b1;
           end
         end
@@ -1204,7 +1199,7 @@ module SPI_PWM (
   assign spi_fsm_being_written_fsm_wantKill = 1'b0;
   always @(*) begin
     spi_fsm_sclk_count_willIncrement = 1'b0;
-    if(when_SPI_PWM_l90) begin
+    if(when_SPI_PWM_l82) begin
       spi_fsm_sclk_count_willIncrement = 1'b1;
     end
   end
@@ -1225,7 +1220,8 @@ module SPI_PWM (
     end
   end
 
-  assign when_SPI_PWM_l90 = (spi_fsm_sclk_cnt_start && (sclk_sync && (! sclk_sync_regNext)));
+  assign spi_fsm_sclk_cnt_start = 1'b0;
+  assign spi_fsm_sclk_rise = (sclk_sync && (! sclk_sync_regNext));
   always @(*) begin
     spi_fsm_being_written_fsm_stateNext = spi_fsm_being_written_fsm_stateReg;
     case(spi_fsm_being_written_fsm_stateReg)
@@ -1238,7 +1234,7 @@ module SPI_PWM (
         if(interrupt) begin
           spi_fsm_being_written_fsm_stateNext = spi_fsm_being_written_fsm_enumDef_read;
         end else begin
-          if(ss_sync) begin
+          if(spi_fsm_being_written_fsm_ss_has_rised) begin
             spi_fsm_being_written_fsm_stateNext = spi_fsm_being_written_fsm_enumDef_BOOT;
           end
         end
@@ -1259,6 +1255,7 @@ module SPI_PWM (
     end
   end
 
+  assign when_SPI_PWM_l165 = (spi_fsm_being_written_fsm_is_high_8bit && (! spi_fsm_being_written_fsm_is_high_8bit_regNext));
   assign _zz_spi_fsm_being_written_fsm_data = apb_m_PRDATA[7 : 0];
   always @(*) begin
     case(spi_fsm_being_written_fsm_ptr)
@@ -1313,14 +1310,12 @@ module SPI_PWM (
     endcase
   end
 
-  assign when_SPI_PWM_l154 = (spi_fsm_being_written_fsm_is_high_8bit && (! spi_fsm_being_written_fsm_is_high_8bit_regNext));
-  assign _zz_when_StateMachine_l229 = (spi_fsm_stateReg == spi_fsm_enumDef_start_transfer);
-  assign _zz_when_StateMachine_l229_1 = (spi_fsm_stateNext == spi_fsm_enumDef_start_transfer);
+  assign when_SPI_PWM_l140 = (ss_sync && (! ss_sync_regNext));
   always @(*) begin
     spi_fsm_stateNext = spi_fsm_stateReg;
     case(spi_fsm_stateReg)
       spi_fsm_enumDef_idle : begin
-        if(when_utils_l25_3) begin
+        if(when_utils_l25_2) begin
           spi_fsm_stateNext = spi_fsm_enumDef_start_transfer;
         end
       end
@@ -1331,7 +1326,7 @@ module SPI_PWM (
       end
       spi_fsm_enumDef_start_transfer : begin
         if(when_utils_l25_11) begin
-          if(when_SPI_PWM_l111) begin
+          if(spi_fsm_readwrite_bit) begin
             spi_fsm_stateNext = spi_fsm_enumDef_being_written;
           end else begin
             spi_fsm_stateNext = spi_fsm_enumDef_idle;
@@ -1341,7 +1336,7 @@ module SPI_PWM (
       default : begin
       end
     endcase
-    if(when_SPI_PWM_l63) begin
+    if(when_SPI_PWM_l66) begin
       spi_fsm_stateNext = spi_fsm_enumDef_idle;
     end
     if(spi_fsm_wantStart) begin
@@ -1352,17 +1347,16 @@ module SPI_PWM (
     end
   end
 
-  assign when_utils_l25 = (_zz_when_utils_l25_1 == 3'b000);
-  assign when_utils_l25_1 = (_zz_when_utils_l25_1 == 3'b001);
-  assign when_utils_l25_2 = (_zz_when_utils_l25_1 == 3'b010);
-  assign when_utils_l25_3 = (_zz_when_utils_l25_1 == 3'b011);
+  assign when_utils_l25 = (_zz_when_utils_l25_1 == 2'b00);
+  assign when_utils_l25_1 = (_zz_when_utils_l25_1 == 2'b01);
+  assign when_utils_l25_2 = (_zz_when_utils_l25_1 == 2'b10);
   assign when_utils_l26 = 1'b1;
-  assign when_utils_l34 = (_zz_when_utils_l25_1 == 3'b100);
-  assign when_utils_l25_4 = (_zz_when_utils_l25 == 4'b0000);
-  assign when_utils_l25_5 = (_zz_when_utils_l25 == 4'b0001);
-  assign when_utils_l25_6 = (_zz_when_utils_l25 == 4'b0010);
+  assign when_utils_l34 = (_zz_when_utils_l25_1 == 2'b11);
+  assign when_utils_l25_3 = (_zz_when_utils_l25 == 4'b0000);
+  assign when_utils_l25_4 = (_zz_when_utils_l25 == 4'b0001);
+  assign when_utils_l25_5 = (_zz_when_utils_l25 == 4'b0010);
   assign when_utils_l26_1 = (spi_fsm_sclk_count_value == 3'b111);
-  assign when_utils_l25_7 = (_zz_when_utils_l25 == 4'b0011);
+  assign when_utils_l25_6 = (_zz_when_utils_l25 == 4'b0011);
   assign switch_Regs_l47 = spi_fsm_temp_rx[6 : 0];
   always @(*) begin
     case(switch_Regs_l47)
@@ -1418,22 +1412,23 @@ module SPI_PWM (
   end
 
   assign when_utils_l26_2 = 1'b1;
-  assign when_utils_l25_8 = (_zz_when_utils_l25 == 4'b0100);
-  assign when_utils_l25_9 = (_zz_when_utils_l25 == 4'b0101);
-  assign when_utils_l25_10 = (_zz_when_utils_l25 == 4'b0110);
+  assign when_utils_l25_7 = (_zz_when_utils_l25 == 4'b0100);
+  assign when_utils_l25_8 = (_zz_when_utils_l25 == 4'b0101);
+  assign when_utils_l25_9 = (_zz_when_utils_l25 == 4'b0110);
   assign when_utils_l26_3 = (spi_fsm_sclk_count_value == 3'b000);
-  assign when_utils_l25_11 = (_zz_when_utils_l25 == 4'b0111);
-  assign when_SPI_PWM_l111 = spi_fsm_temp_rx[0];
+  assign when_utils_l25_10 = (_zz_when_utils_l25 == 4'b0111);
+  assign when_utils_l25_11 = (_zz_when_utils_l25 == 4'b1000);
   assign when_utils_l26_4 = 1'b1;
-  assign when_utils_l34_1 = (_zz_when_utils_l25 == 4'b1000);
-  assign when_StateMachine_l229 = (_zz_when_StateMachine_l229 && (! _zz_when_StateMachine_l229_1));
+  assign when_utils_l34_1 = (_zz_when_utils_l25 == 4'b1001);
+  assign when_StateMachine_l229 = ((spi_fsm_stateReg == spi_fsm_enumDef_start_transfer) && (! (spi_fsm_stateNext == spi_fsm_enumDef_start_transfer)));
   assign when_StateMachine_l245 = ((! (spi_fsm_stateReg == spi_fsm_enumDef_being_written)) && (spi_fsm_stateNext == spi_fsm_enumDef_being_written));
-  assign when_StateMachine_l245_1 = ((! _zz_when_StateMachine_l229) && _zz_when_StateMachine_l229_1);
-  assign when_SPI_PWM_l63 = (ss_sync && (! (spi_fsm_stateReg == spi_fsm_enumDef_being_written)));
+  assign when_SPI_PWM_l66 = (ss_sync && (! (spi_fsm_stateReg == spi_fsm_enumDef_being_written)));
+  assign when_SPI_PWM_l70 = ((! ss_sync) && ss_sync_regNext_1);
+  assign when_SPI_PWM_l82 = ((spi_fsm_ss_has_fallen || (spi_fsm_stateReg == spi_fsm_enumDef_start_transfer)) && spi_fsm_sclk_rise);
   always @(posedge oscout or posedge reset) begin
     if(reset) begin
       _zz_when_utils_l25 <= 4'b0000;
-      _zz_when_utils_l25_1 <= 3'b000;
+      _zz_when_utils_l25_1 <= 2'b00;
       pwm_sub_pwms_0_counter <= 16'h0;
       _zz_pwm_pwm_area_channels_0_counter_map <= 16'h0;
       pwm_pre_divicder_counter <= 5'h0;
@@ -1445,9 +1440,11 @@ module SPI_PWM (
       spi_fsm_being_written_fsm_data <= 8'h0;
       spi_fsm_being_written_fsm_ptr <= 7'h0;
       spi_fsm_being_written_fsm_is_high_8bit <= 1'b1;
+      spi_fsm_being_written_fsm_ss_has_rised <= 1'b0;
       spi_fsm_sclk_count_value <= 3'b000;
-      spi_fsm_sclk_cnt_start <= 1'b0;
       spi_fsm_temp_rx <= 8'h0;
+      spi_fsm_ss_has_fallen <= 1'b0;
+      spi_fsm_readwrite_bit <= 1'b0;
       spi_fsm_being_written_fsm_stateReg <= spi_fsm_being_written_fsm_enumDef_BOOT;
       spi_fsm_stateReg <= spi_fsm_enumDef_BOOT;
     end else begin
@@ -1501,17 +1498,19 @@ module SPI_PWM (
         end
       endcase
       spi_fsm_sclk_count_value <= spi_fsm_sclk_count_valueNext;
-      if(when_SPI_PWM_l90) begin
-        spi_fsm_temp_rx <= _zz_spi_fsm_temp_rx[7:0];
-      end
       spi_fsm_being_written_fsm_stateReg <= spi_fsm_being_written_fsm_stateNext;
       case(spi_fsm_being_written_fsm_stateReg)
         spi_fsm_being_written_fsm_enumDef_init : begin
+          spi_fsm_being_written_fsm_is_high_8bit <= 1'b1;
+          spi_fsm_being_written_fsm_ss_has_rised <= 1'b0;
           if(apb_m_PENABLE) begin
             spi_fsm_being_written_fsm_ptr <= spi_fsm_reg_addr;
           end
         end
         spi_fsm_being_written_fsm_enumDef_wait_s : begin
+          if(when_SPI_PWM_l165) begin
+            spi_fsm_being_written_fsm_ptr <= (spi_fsm_being_written_fsm_ptr + 7'h01);
+          end
         end
         spi_fsm_being_written_fsm_enumDef_read : begin
           if(apb_m_PENABLE) begin
@@ -1522,78 +1521,80 @@ module SPI_PWM (
         default : begin
         end
       endcase
-      if(when_SPI_PWM_l154) begin
-        spi_fsm_being_written_fsm_ptr <= (spi_fsm_being_written_fsm_ptr + 7'h01);
+      if(when_SPI_PWM_l140) begin
+        spi_fsm_being_written_fsm_ss_has_rised <= 1'b1;
       end
       spi_fsm_stateReg <= spi_fsm_stateNext;
       case(spi_fsm_stateReg)
         spi_fsm_enumDef_idle : begin
           if(when_utils_l25) begin
             if(apb_m_PENABLE) begin
-              _zz_when_utils_l25_1 <= 3'b001;
+              _zz_when_utils_l25_1 <= 2'b01;
             end
           end
           if(when_utils_l25_1) begin
-            if(apb_m_PENABLE) begin
-              _zz_when_utils_l25_1 <= 3'b010;
+            spi_fsm_ss_has_fallen <= 1'b0;
+            if(spi_fsm_ss_has_fallen) begin
+              _zz_when_utils_l25_1 <= 2'b10;
             end
           end
           if(when_utils_l25_2) begin
-            if(interrupt) begin
-              _zz_when_utils_l25_1 <= 3'b011;
-            end
-          end
-          if(when_utils_l25_3) begin
             if(when_utils_l26) begin
-              _zz_when_utils_l25_1 <= 3'b100;
+              _zz_when_utils_l25_1 <= 2'b11;
             end
           end
           if(when_utils_l34) begin
-            _zz_when_utils_l25_1 <= 3'b000;
+            _zz_when_utils_l25_1 <= 2'b00;
           end
         end
         spi_fsm_enumDef_being_written : begin
         end
         spi_fsm_enumDef_start_transfer : begin
-          if(when_utils_l25_4) begin
+          if(when_utils_l25_3) begin
             if(apb_m_PENABLE) begin
               _zz_when_utils_l25 <= 4'b0001;
             end
           end
-          if(when_utils_l25_5) begin
+          if(when_utils_l25_4) begin
             if(apb_m_PENABLE) begin
               _zz_when_utils_l25 <= 4'b0010;
             end
           end
-          if(when_utils_l25_6) begin
+          if(when_utils_l25_5) begin
             if(when_utils_l26_1) begin
               _zz_when_utils_l25 <= 4'b0011;
             end
           end
-          if(when_utils_l25_7) begin
+          if(when_utils_l25_6) begin
             spi_fsm_reg_addr <= spi_fsm_temp_rx[6 : 0];
             if(when_utils_l26_2) begin
               _zz_when_utils_l25 <= 4'b0100;
             end
           end
-          if(when_utils_l25_8) begin
+          if(when_utils_l25_7) begin
             if(apb_m_PENABLE) begin
               _zz_when_utils_l25 <= 4'b0101;
             end
           end
-          if(when_utils_l25_9) begin
+          if(when_utils_l25_8) begin
             if(apb_m_PENABLE) begin
               _zz_when_utils_l25 <= 4'b0110;
             end
           end
-          if(when_utils_l25_10) begin
+          if(when_utils_l25_9) begin
+            spi_fsm_readwrite_bit <= spi_fsm_temp_rx[0];
             if(when_utils_l26_3) begin
               _zz_when_utils_l25 <= 4'b0111;
             end
           end
+          if(when_utils_l25_10) begin
+            if(spi_fsm_sclk_rise) begin
+              _zz_when_utils_l25 <= 4'b1000;
+            end
+          end
           if(when_utils_l25_11) begin
             if(when_utils_l26_4) begin
-              _zz_when_utils_l25 <= 4'b1000;
+              _zz_when_utils_l25 <= 4'b1001;
             end
           end
           if(when_utils_l34_1) begin
@@ -1603,12 +1604,12 @@ module SPI_PWM (
         default : begin
         end
       endcase
-      if(when_StateMachine_l229) begin
-        spi_fsm_sclk_cnt_start <= 1'b0;
-      end
-      if(when_StateMachine_l245_1) begin
-        spi_fsm_sclk_cnt_start <= 1'b1;
+      if(when_SPI_PWM_l70) begin
+        spi_fsm_ss_has_fallen <= 1'b1;
         spi_fsm_temp_rx <= 8'h0;
+      end
+      if(when_SPI_PWM_l82) begin
+        spi_fsm_temp_rx <= _zz_spi_fsm_temp_rx[7:0];
       end
     end
   end
@@ -1633,14 +1634,10 @@ module SPI_PWM (
       default : begin
       end
     endcase
-    spi_fsm_being_written_fsm_is_high_8bit_regNext <= spi_fsm_being_written_fsm_is_high_8bit;
+    ss_sync_regNext <= ss_sync;
     case(spi_fsm_stateReg)
       spi_fsm_enumDef_idle : begin
         if(when_utils_l25) begin
-          apb_m_PWRITE <= 1'b1;
-          apb_m_PADDR <= spi_slave_regs_status[7:0];
-        end
-        if(when_utils_l25_1) begin
           apb_m_PWRITE <= 1'b1;
           apb_m_PADDR <= spi_slave_regs_config[7:0];
         end
@@ -1648,11 +1645,15 @@ module SPI_PWM (
       spi_fsm_enumDef_being_written : begin
       end
       spi_fsm_enumDef_start_transfer : begin
-        if(when_utils_l25_4) begin
+        if(when_utils_l25_3) begin
           apb_m_PWRITE <= 1'b1;
           apb_m_PADDR <= spi_slave_regs_status[7:0];
         end
-        if(when_utils_l25_5) begin
+        if(when_utils_l25_4) begin
+          apb_m_PWRITE <= 1'b1;
+          apb_m_PADDR <= spi_slave_regs_data[7:0];
+        end
+        if(when_utils_l25_7) begin
           apb_m_PWRITE <= 1'b1;
           apb_m_PADDR <= spi_slave_regs_data[7:0];
         end
@@ -1660,21 +1661,22 @@ module SPI_PWM (
           apb_m_PWRITE <= 1'b1;
           apb_m_PADDR <= spi_slave_regs_data[7:0];
         end
-        if(when_utils_l25_9) begin
-          apb_m_PWRITE <= 1'b1;
-          apb_m_PADDR <= spi_slave_regs_data[7:0];
-        end
       end
       default : begin
       end
     endcase
+    ss_sync_regNext_1 <= ss_sync;
+  end
+
+  always @(posedge oscout) begin
+    spi_fsm_being_written_fsm_is_high_8bit_regNext <= spi_fsm_being_written_fsm_is_high_8bit;
   end
 
   always @(posedge oscout or posedge reset) begin
     if(reset) begin
       _zz_apb_m_PWDATA <= 16'h0;
     end else begin
-      if(when_utils_l25_7) begin
+      if(when_utils_l25_6) begin
         _zz_apb_m_PWDATA <= _zz_regs_data_port16;
       end
     end

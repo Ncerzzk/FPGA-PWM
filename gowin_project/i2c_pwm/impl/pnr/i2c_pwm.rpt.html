@@ -79,7 +79,7 @@ table.detail_table th.label {  min-width: 8%; width: 8%; }
 </tr>
 <tr>
 <td class="label">Created Time</td>
-<td>Sun Mar 26 19:44:10 2023
+<td>Tue Mar 28 20:31:01 2023
 </td>
 </tr>
 <tr>
@@ -93,18 +93,18 @@ table.detail_table th.label {  min-width: 8%; width: 8%; }
 <tr>
 <td class="label">Place & Route Process</td>
 <td>Running placement:
-   Placement Phase 0: CPU time = 0h 0m 0.07s, Elapsed time = 0h 0m 0.07s
-   Placement Phase 1: CPU time = 0h 0m 0.029s, Elapsed time = 0h 0m 0.029s
-   Placement Phase 2: CPU time = 0h 0m 0.1s, Elapsed time = 0h 0m 0.1s
-   Placement Phase 3: CPU time = 0h 0m 0.908s, Elapsed time = 0h 0m 0.908s
+   Placement Phase 0: CPU time = 0h 0m 0.082s, Elapsed time = 0h 0m 0.083s
+   Placement Phase 1: CPU time = 0h 0m 0.047s, Elapsed time = 0h 0m 0.047s
+   Placement Phase 2: CPU time = 0h 0m 0.124s, Elapsed time = 0h 0m 0.123s
+   Placement Phase 3: CPU time = 0h 0m 1s, Elapsed time = 0h 0m 1s
    Total Placement: CPU time = 0h 0m 1s, Elapsed time = 0h 0m 1s
 Running routing:
    Routing Phase 0: CPU time = 0h 0m 0.001s, Elapsed time = 0h 0m 0.001s
-   Routing Phase 1: CPU time = 0h 0m 0.023s, Elapsed time = 0h 0m 0.023s
-   Routing Phase 2: CPU time = 0h 0m 0.531s, Elapsed time = 0h 0m 0.531s
-   Total Routing: CPU time = 0h 0m 0.555s, Elapsed time = 0h 0m 0.555s
+   Routing Phase 1: CPU time = 0h 0m 0.029s, Elapsed time = 0h 0m 0.029s
+   Routing Phase 2: CPU time = 0h 0m 0.549s, Elapsed time = 0h 0m 0.549s
+   Total Routing: CPU time = 0h 0m 0.579s, Elapsed time = 0h 0m 0.579s
 Generate output files:
-   CPU time = 0h 0m 0.236s, Elapsed time = 0h 0m 0.236s
+   CPU time = 0h 0m 0.264s, Elapsed time = 0h 0m 0.265s
 </td>
 </tr>
 <tr>
@@ -124,12 +124,12 @@ Generate output files:
 </tr>
 <tr>
 <td class="label">Logic</td>
-<td>934/1152</td>
+<td>936/1152</td>
 <td>81%</td>
 </tr>
 <tr>
 <td class="label">&nbsp &nbsp --LUT,ALU,ROM16</td>
-<td>934(821 LUT, 113 ALU, 0 ROM16)</td>
+<td>936(823 LUT, 113 ALU, 0 ROM16)</td>
 <td>-</td>
 </tr>
 <tr>
@@ -139,7 +139,7 @@ Generate output files:
 </tr>
 <tr>
 <td class="label">Register</td>
-<td>535/918</td>
+<td>537/918</td>
 <td>58%</td>
 </tr>
 <tr>
@@ -149,8 +149,8 @@ Generate output files:
 </tr>
 <tr>
 <td class="label">&nbsp &nbsp --Logic Register as FF</td>
-<td>535/864</td>
-<td>61%</td>
+<td>537/864</td>
+<td>62%</td>
 </tr>
 <tr>
 <td class="label">&nbsp &nbsp --I/O Register as Latch</td>
@@ -164,8 +164,8 @@ Generate output files:
 </tr>
 <tr>
 <td class="label">CLS</td>
-<td>548/576</td>
-<td>95%</td>
+<td>558/576</td>
+<td>96%</td>
 </tr>
 <tr>
 <td class="label">I/O Port</td>
@@ -399,10 +399,10 @@ Generate output files:
 <tr>
 <td class="label">reset</td>
 <td></td>
-<td>6/2</td>
+<td>32/3</td>
 <td>N</td>
 <td>in</td>
-<td>IOB16[A]</td>
+<td>IOL10[A]</td>
 <td>LVCMOS33</td>
 <td>NA</td>
 <td>DOWN</td>
@@ -411,7 +411,7 @@ Generate output files:
 <td>NA</td>
 <td>NA</td>
 <td>NA</td>
-<td>NA</td>
+<td>OFF</td>
 <td>NA</td>
 <td>3.3</td>
 </tr>
@@ -437,10 +437,10 @@ Generate output files:
 <tr>
 <td class="label">spi_pins_miso_writeEnable</td>
 <td></td>
-<td>32/3</td>
+<td>6/2</td>
 <td>N</td>
 <td>out</td>
-<td>IOL10[A]</td>
+<td>IOB16[A]</td>
 <td>LVCMOS33</td>
 <td>8</td>
 <td>UP</td>
@@ -449,7 +449,7 @@ Generate output files:
 <td>OFF</td>
 <td>FAST</td>
 <td>NA</td>
-<td>OFF</td>
+<td>NA</td>
 <td>NA</td>
 <td>3.3</td>
 </tr>
@@ -730,16 +730,16 @@ Generate output files:
 </tr>
 <tr>
 <td class="label">6/2</td>
-<td>reset</td>
-<td>in</td>
+<td>spi_pins_miso_writeEnable</td>
+<td>out</td>
 <td>IOB16[A]</td>
 <td>LVCMOS33</td>
-<td>NA</td>
-<td>DOWN</td>
-<td>NA</td>
-<td>NONE</td>
+<td>8</td>
+<td>UP</td>
 <td>NA</td>
 <td>NA</td>
+<td>OFF</td>
+<td>FAST</td>
 <td>NA</td>
 <td>NA</td>
 <td>NA</td>
@@ -866,16 +866,16 @@ Generate output files:
 </tr>
 <tr>
 <td class="label">32/3</td>
-<td>spi_pins_miso_writeEnable</td>
-<td>out</td>
+<td>reset</td>
+<td>in</td>
 <td>IOL10[A]</td>
 <td>LVCMOS33</td>
-<td>8</td>
-<td>UP</td>
+<td>NA</td>
+<td>DOWN</td>
+<td>NA</td>
+<td>NONE</td>
 <td>NA</td>
 <td>NA</td>
-<td>OFF</td>
-<td>FAST</td>
 <td>NA</td>
 <td>OFF</td>
 <td>NA</td>
