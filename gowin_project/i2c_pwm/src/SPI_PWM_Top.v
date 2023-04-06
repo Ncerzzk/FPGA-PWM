@@ -1,14 +1,12 @@
 // Generator : SpinalHDL v1.7.0    git head : eca519e78d4e6022e34911ec300a432ed9db8220
 // Component : SPI_PWM_Top
-// Git hash  : 4e23e2aa2656bbe1906392bdc1b138c06ffa3ae8
+// Git hash  : 8f8c494849073ffa5a3b2047b1cc9315a88fa1a8
 
 `timescale 1ns/1ps
 
 module SPI_PWM_Top (
   input               spi_pins_sclk,
   input               spi_pins_mosi,
-  output              spi_pins_miso_write,
-  output              spi_pins_miso_writeEnable,
   input               spi_pins_ss,
   output              pwm_out_ch0,
   output              pwm_out_ch1,
@@ -18,6 +16,7 @@ module SPI_PWM_Top (
   output              pwm_out_ch5,
   output              pwm_out_ch6,
   output              pwm_out_ch7,
+   inout              spi_pins_miso,
   input               reset
 );
 
@@ -40,6 +39,9 @@ module SPI_PWM_Top (
   wire                spi_slave_ctrl_io_spi_miso_write;
   wire                spi_slave_ctrl_io_spi_miso_writeEnable;
   wire                spi_slave_ctrl_io_interrupt;
+  reg                 _zz_spi_pins_miso;
+  wire                _zz_spi_pins_miso_1;
+  wire                _zz_1;
 
   Gowin_OSC osc (
     .oscout (osc_oscout)  //o
@@ -84,6 +86,14 @@ module SPI_PWM_Top (
     .oscout                  (osc_oscout                            ), //i
     .reset                   (reset                                 )  //i
   );
+  assign spi_pins_miso = _zz_spi_pins_miso ? _zz_spi_pins_miso_1 : 1'bz;
+  always @(*) begin
+    _zz_spi_pins_miso = 1'b0;
+    if(_zz_1) begin
+      _zz_spi_pins_miso = 1'b1;
+    end
+  end
+
   assign pwm_out_ch0 = spi_pwm_1_pwm_pwm_out_ch0;
   assign pwm_out_ch1 = spi_pwm_1_pwm_pwm_out_ch1;
   assign pwm_out_ch2 = spi_pwm_1_pwm_pwm_out_ch2;
@@ -92,8 +102,8 @@ module SPI_PWM_Top (
   assign pwm_out_ch5 = spi_pwm_1_pwm_pwm_out_ch5;
   assign pwm_out_ch6 = spi_pwm_1_pwm_pwm_out_ch6;
   assign pwm_out_ch7 = spi_pwm_1_pwm_pwm_out_ch7;
-  assign spi_pins_miso_write = spi_slave_ctrl_io_spi_miso_write;
-  assign spi_pins_miso_writeEnable = spi_slave_ctrl_io_spi_miso_writeEnable;
+  assign _zz_spi_pins_miso_1 = spi_slave_ctrl_io_spi_miso_write;
+  assign _zz_1 = spi_slave_ctrl_io_spi_miso_writeEnable;
 
 endmodule
 
@@ -577,11 +587,11 @@ module SPI_PWM (
   reg        [1:0]    spi_fsm_being_written_fsm_stateReg;
   reg        [1:0]    spi_fsm_being_written_fsm_stateNext;
   reg                 spi_fsm_being_written_fsm_is_high_8bit_regNext;
-  wire                when_SPI_PWM_l165;
+  wire                when_SPI_PWM_l166;
   wire       [7:0]    _zz_spi_fsm_being_written_fsm_data;
   reg        [3:0]    _zz_2;
   reg                 ss_sync_regNext;
-  wire                when_SPI_PWM_l140;
+  wire                when_SPI_PWM_l141;
   reg        [1:0]    spi_fsm_stateReg;
   reg        [1:0]    spi_fsm_stateNext;
   wire                when_utils_l25;
@@ -608,10 +618,10 @@ module SPI_PWM (
   wire                when_utils_l34_1;
   wire                when_StateMachine_l229;
   wire                when_StateMachine_l245;
-  wire                when_SPI_PWM_l66;
+  wire                when_SPI_PWM_l67;
   reg                 ss_sync_regNext_1;
-  wire                when_SPI_PWM_l70;
-  wire                when_SPI_PWM_l82;
+  wire                when_SPI_PWM_l71;
+  wire                when_SPI_PWM_l83;
   `ifndef SYNTHESIS
   reg [63:0] apb_operation_phase_string;
   reg [47:0] spi_fsm_being_written_fsm_stateReg_string;
@@ -1199,7 +1209,7 @@ module SPI_PWM (
   assign spi_fsm_being_written_fsm_wantKill = 1'b0;
   always @(*) begin
     spi_fsm_sclk_count_willIncrement = 1'b0;
-    if(when_SPI_PWM_l82) begin
+    if(when_SPI_PWM_l83) begin
       spi_fsm_sclk_count_willIncrement = 1'b1;
     end
   end
@@ -1255,7 +1265,7 @@ module SPI_PWM (
     end
   end
 
-  assign when_SPI_PWM_l165 = (spi_fsm_being_written_fsm_is_high_8bit && (! spi_fsm_being_written_fsm_is_high_8bit_regNext));
+  assign when_SPI_PWM_l166 = (spi_fsm_being_written_fsm_is_high_8bit && (! spi_fsm_being_written_fsm_is_high_8bit_regNext));
   assign _zz_spi_fsm_being_written_fsm_data = apb_m_PRDATA[7 : 0];
   always @(*) begin
     case(spi_fsm_being_written_fsm_ptr)
@@ -1310,7 +1320,7 @@ module SPI_PWM (
     endcase
   end
 
-  assign when_SPI_PWM_l140 = (ss_sync && (! ss_sync_regNext));
+  assign when_SPI_PWM_l141 = (ss_sync && (! ss_sync_regNext));
   always @(*) begin
     spi_fsm_stateNext = spi_fsm_stateReg;
     case(spi_fsm_stateReg)
@@ -1336,7 +1346,7 @@ module SPI_PWM (
       default : begin
       end
     endcase
-    if(when_SPI_PWM_l66) begin
+    if(when_SPI_PWM_l67) begin
       spi_fsm_stateNext = spi_fsm_enumDef_idle;
     end
     if(spi_fsm_wantStart) begin
@@ -1422,9 +1432,9 @@ module SPI_PWM (
   assign when_utils_l34_1 = (_zz_when_utils_l25 == 4'b1001);
   assign when_StateMachine_l229 = ((spi_fsm_stateReg == spi_fsm_enumDef_start_transfer) && (! (spi_fsm_stateNext == spi_fsm_enumDef_start_transfer)));
   assign when_StateMachine_l245 = ((! (spi_fsm_stateReg == spi_fsm_enumDef_being_written)) && (spi_fsm_stateNext == spi_fsm_enumDef_being_written));
-  assign when_SPI_PWM_l66 = (ss_sync && (! (spi_fsm_stateReg == spi_fsm_enumDef_being_written)));
-  assign when_SPI_PWM_l70 = ((! ss_sync) && ss_sync_regNext_1);
-  assign when_SPI_PWM_l82 = ((spi_fsm_ss_has_fallen || (spi_fsm_stateReg == spi_fsm_enumDef_start_transfer)) && spi_fsm_sclk_rise);
+  assign when_SPI_PWM_l67 = (ss_sync && (! (spi_fsm_stateReg == spi_fsm_enumDef_being_written)));
+  assign when_SPI_PWM_l71 = ((! ss_sync) && ss_sync_regNext_1);
+  assign when_SPI_PWM_l83 = ((spi_fsm_ss_has_fallen || (spi_fsm_stateReg == spi_fsm_enumDef_start_transfer)) && spi_fsm_sclk_rise);
   always @(posedge oscout or posedge reset) begin
     if(reset) begin
       _zz_when_utils_l25 <= 4'b0000;
@@ -1508,7 +1518,7 @@ module SPI_PWM (
           end
         end
         spi_fsm_being_written_fsm_enumDef_wait_s : begin
-          if(when_SPI_PWM_l165) begin
+          if(when_SPI_PWM_l166) begin
             spi_fsm_being_written_fsm_ptr <= (spi_fsm_being_written_fsm_ptr + 7'h01);
           end
         end
@@ -1521,7 +1531,7 @@ module SPI_PWM (
         default : begin
         end
       endcase
-      if(when_SPI_PWM_l140) begin
+      if(when_SPI_PWM_l141) begin
         spi_fsm_being_written_fsm_ss_has_rised <= 1'b1;
       end
       spi_fsm_stateReg <= spi_fsm_stateNext;
@@ -1604,11 +1614,11 @@ module SPI_PWM (
         default : begin
         end
       endcase
-      if(when_SPI_PWM_l70) begin
+      if(when_SPI_PWM_l71) begin
         spi_fsm_ss_has_fallen <= 1'b1;
         spi_fsm_temp_rx <= 8'h0;
       end
-      if(when_SPI_PWM_l82) begin
+      if(when_SPI_PWM_l83) begin
         spi_fsm_temp_rx <= _zz_spi_fsm_temp_rx[7:0];
       end
     end

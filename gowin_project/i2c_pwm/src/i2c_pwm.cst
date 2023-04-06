@@ -4,7 +4,7 @@
 //GOWIN Version: 1.9.8.06-1
 //Part Number: GW1N-LV1QN32C6/I5
 //Device: GW1N-1
-//Created Time: Sun 03 26 19:44:00 2023
+//Created Time: Wed 04 05 12:37:18 2023
 
 IO_LOC "pwm_out_ch7" 16;
 IO_PORT "pwm_out_ch7" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
@@ -22,9 +22,8 @@ IO_LOC "pwm_out_ch1" 4;
 IO_PORT "pwm_out_ch1" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
 IO_LOC "pwm_out_ch0" 1;
 IO_PORT "pwm_out_ch0" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
-IO_PORT "spi_pins_miso_writeEnable" IO_TYPE=LVCMOS33;
-IO_LOC "spi_pins_miso_write" 11;
-IO_PORT "spi_pins_miso_write" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_LOC "spi_pins_miso" 11;
+IO_PORT "spi_pins_miso" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
 IO_PORT "reset" IO_TYPE=LVCMOS33 PULL_MODE=DOWN;
 IO_LOC "spi_pins_ss" 10;
 IO_PORT "spi_pins_ss" IO_TYPE=LVCMOS33 PULL_MODE=UP;

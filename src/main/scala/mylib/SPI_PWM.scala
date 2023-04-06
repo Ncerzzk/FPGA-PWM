@@ -5,6 +5,7 @@ import spinal.lib._
 import spinal.lib.bus.amba3.apb.{Apb3, Apb3Config, Apb3SlaveFactory}
 import spinal.lib.com.spi.{Apb3SpiSlaveCtrl, SpiSlave, SpiSlaveCtrlGenerics, SpiSlaveCtrlMemoryMappedConfig}
 import spinal.lib.fsm.{EntryPoint, State, StateFsm, StateMachine}
+import spinal.lib.io.InOutWrapper
 
 object APB3Phase extends SpinalEnum{
   val IDLE, SETUP, ACCESS = newElement
@@ -221,6 +222,6 @@ class SPI_PWM_Top(forfpga:Boolean = false) extends Component{
 object SPI_PWM_Gen_For_FPGA {
   def main(args: Array[String]) {
     //InOutWrapper
-    SpinalVerilog(new SPI_PWM_Top(true)).printPruned()
+    SpinalVerilog(InOutWrapper(new SPI_PWM_Top(true))).printPruned()
   }
 }

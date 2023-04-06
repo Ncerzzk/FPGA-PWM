@@ -9,7 +9,7 @@
   "SubInsts" : [
    {
     "InstFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
-    "InstLine" : 44,
+    "InstLine" : 46,
     "InstName" : "osc",
     "ModuleFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/gowin_osc/gowin_osc.v",
     "ModuleLine" : 9,
@@ -17,94 +17,94 @@
    },
    {
     "InstFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
-    "InstLine" : 47,
+    "InstLine" : 49,
     "InstName" : "spi_pwm_1",
     "ModuleFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
-    "ModuleLine" : 391,
+    "ModuleLine" : 401,
     "ModuleName" : "SPI_PWM",
     "SubInsts" : [
      {
       "InstFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
-      "InstLine" : 671,
+      "InstLine" : 681,
       "InstName" : "sclk_buffercc",
       "ModuleFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
-      "ModuleLine" : 2016,
+      "ModuleLine" : 2026,
       "ModuleName" : "BufferCC"
      },
      {
       "InstFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
-      "InstLine" : 677,
+      "InstLine" : 687,
       "InstName" : "mosi_buffercc",
       "ModuleFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
-      "ModuleLine" : 2016,
+      "ModuleLine" : 2026,
       "ModuleName" : "BufferCC"
      },
      {
       "InstFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
-      "InstLine" : 683,
+      "InstLine" : 693,
       "InstName" : "ss_buffercc",
       "ModuleFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
-      "ModuleLine" : 2016,
+      "ModuleLine" : 2026,
       "ModuleName" : "BufferCC"
      }
     ]
    },
    {
     "InstFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
-    "InstLine" : 70,
+    "InstLine" : 72,
     "InstName" : "spi_slave_ctrl",
     "ModuleFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
-    "ModuleLine" : 100,
+    "ModuleLine" : 110,
     "ModuleName" : "Apb3SpiSlaveCtrl",
     "SubInsts" : [
      {
       "InstFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
-      "InstLine" : 177,
+      "InstLine" : 187,
       "InstName" : "spiCtrl",
       "ModuleFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
-      "ModuleLine" : 1869,
+      "ModuleLine" : 1879,
       "ModuleName" : "SpiSlaveCtrl",
       "SubInsts" : [
        {
         "InstFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
-        "InstLine" : 1922,
+        "InstLine" : 1932,
         "InstName" : "io_spi_sclk_buffercc",
         "ModuleFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
-        "ModuleLine" : 2016,
+        "ModuleLine" : 2026,
         "ModuleName" : "BufferCC"
        },
        {
         "InstFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
-        "InstLine" : 1928,
+        "InstLine" : 1938,
         "InstName" : "io_spi_ss_buffercc",
         "ModuleFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
-        "ModuleLine" : 2016,
+        "ModuleLine" : 2026,
         "ModuleName" : "BufferCC"
        },
        {
         "InstFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
-        "InstLine" : 1934,
+        "InstLine" : 1944,
         "InstName" : "io_spi_mosi_buffercc",
         "ModuleFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
-        "ModuleLine" : 2016,
+        "ModuleLine" : 2026,
         "ModuleName" : "BufferCC"
        }
       ]
      },
      {
       "InstFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
-      "InstLine" : 195,
+      "InstLine" : 205,
       "InstName" : "bridge_txLogic_streamUnbuffered_queueWithAvailability",
       "ModuleFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
-      "ModuleLine" : 1690,
+      "ModuleLine" : 1700,
       "ModuleName" : "StreamFifo"
      },
      {
       "InstFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
-      "InstLine" : 208,
+      "InstLine" : 218,
       "InstName" : "spiCtrl_io_rx_takeWhen_queueWithOccupancy",
       "ModuleFile" : "E:/projects/I2C_PWM/gowin_project/i2c_pwm/src/SPI_PWM_Top.v",
-      "ModuleLine" : 1690,
+      "ModuleLine" : 1700,
       "ModuleName" : "StreamFifo"
      }
     ]
