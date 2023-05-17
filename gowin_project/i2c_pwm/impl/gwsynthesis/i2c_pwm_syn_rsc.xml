@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Module name="SPI_PWM_Top">
     <SubModule name="osc"/>
-    <SubModule name="spi_pwm_1" Register="414" Alu="101" Lut="712">
+    <SubModule name="spi_pwm_1" Register="422" Alu="101" Lut="726">
         <SubModule name="sclk_buffercc" Register="1"/>
         <SubModule name="mosi_buffercc" Register="1"/>
         <SubModule name="ss_buffercc" Register="1"/>
     </SubModule>
-    <SubModule name="spi_slave_ctrl" Register="10" Lut="29">
-        <SubModule name="spiCtrl" Register="15" Lut="17">
+    <SubModule name="spi_slave_ctrl" Register="10" Lut="14">
+        <SubModule name="spiCtrl" Register="15" Lut="16">
             <SubModule name="io_spi_sclk_buffercc" Register="1"/>
             <SubModule name="io_spi_ss_buffercc" Register="1"/>
             <SubModule name="io_spi_mosi_buffercc" Register="1"/>

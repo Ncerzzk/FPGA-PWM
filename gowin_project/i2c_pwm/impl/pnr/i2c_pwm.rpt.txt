@@ -11,26 +11,26 @@
   <PnR Version>: V1.9.8.06-1
   <Part Number>: GW1N-LV1QN32C6/I5
   <Device>: GW1N-1
-  <Created Time>:Wed Apr 05 12:37:23 2023
+  <Created Time>:Wed May 17 00:21:34 2023
 
 
 2. PnR Details
 
   Running placement:
-    Placement Phase 0: CPU time = 0h 0m 0.072s, Elapsed time = 0h 0m 0.071s
-    Placement Phase 1: CPU time = 0h 0m 0.029s, Elapsed time = 0h 0m 0.029s
-    Placement Phase 2: CPU time = 0h 0m 0.096s, Elapsed time = 0h 0m 0.096s
-    Placement Phase 3: CPU time = 0h 0m 0.861s, Elapsed time = 0h 0m 0.86s
+    Placement Phase 0: CPU time = 0h 0m 0.072s, Elapsed time = 0h 0m 0.067s
+    Placement Phase 1: CPU time = 0h 0m 0.029s, Elapsed time = 0h 0m 0.026s
+    Placement Phase 2: CPU time = 0h 0m 0.088s, Elapsed time = 0h 0m 0.09s
+    Placement Phase 3: CPU time = 0h 0m 0.851s, Elapsed time = 0h 0m 0.849s
     Total Placement: CPU time = 0h 0m 1s, Elapsed time = 0h 0m 1s
  Running routing:
     Routing Phase 0: CPU time = 0h 0m 0s, Elapsed time = 0h 0m 0.001s
-    Routing Phase 1: CPU time = 0h 0m 0.022s, Elapsed time = 0h 0m 0.022s
-    Routing Phase 2: CPU time = 0h 0m 0.502s, Elapsed time = 0h 0m 0.502s
-    Total Routing: CPU time = 0h 0m 0.524s, Elapsed time = 0h 0m 0.525s
+    Routing Phase 1: CPU time = 0h 0m 0.029s, Elapsed time = 0h 0m 0.022s
+    Routing Phase 2: CPU time = 0h 0m 0.421s, Elapsed time = 0h 0m 0.426s
+    Total Routing: CPU time = 0h 0m 0.45s, Elapsed time = 0h 0m 0.449s
  Generate output files:
-    CPU time = 0h 0m 0.236s, Elapsed time = 0h 0m 0.236s
+    CPU time = 0h 0m 0.263s, Elapsed time = 0h 0m 0.259s
 
- Total Time and Memory Usage: CPU time = 0h 0m 2s, Elapsed time = 0h 0m 2s, Peak memory usage = 166MB
+ Total Time and Memory Usage: CPU time = 0h 0m 2s, Elapsed time = 0h 0m 2s, Peak memory usage = 141MB
 
 
 3. Resource Usage Summary
@@ -38,15 +38,15 @@
   ----------------------------------------------------------
   Resources                   | Usage
   ----------------------------------------------------------
-  Logic                       | 931/1152  80%
-    --LUT,ALU,ROM16           | 931(818 LUT, 113 ALU, 0 ROM16)
+  Logic                       | 929/1152  80%
+    --LUT,ALU,ROM16           | 929(816 LUT, 113 ALU, 0 ROM16)
     --SSRAM(RAM16)            | 0
-  Register                    | 537/918  58%
+  Register                    | 545/918  59%
     --Logic Register as Latch | 0/864  0%
-    --Logic Register as FF    | 537/864  62%
+    --Logic Register as FF    | 545/864  63%
     --I/O Register as Latch   | 0/54  0%
     --I/O Register as FF      | 0/54  0%
-  CLS                         | 552/576  95%
+  CLS                         | 557/576  96%
   I/O Port                    | 13
   I/O Buf                     | 13
     --Input Buf               | 4
@@ -73,8 +73,8 @@
   -----------------------
   bank 0   | 1/4(25%)    
   bank 1   | 7/10(70%)   
-  bank 2   | 3/3(100%)   
-  bank 3   | 2/9(22%)    
+  bank 2   | 2/3(66%)    
+  bank 3   | 3/9(33%)    
   =======================
 
 
@@ -85,7 +85,7 @@
   -------------------------------
   PRIMARY       | 2/8(25%)
   SECONDARY     | 0/8(0%)
-  GCLK_PIN      | 2/4(50%)
+  GCLK_PIN      | 3/4(75%)
   PLL           | 0/1(0%)
   CLKDIV        | 0/2(0%)
   DLLDLY        | 0/2(0%)
@@ -110,7 +110,7 @@ Port Name      | Diff Pair | Loc./Bank     | Constraint | Dir.  | Site     | IO 
 spi_pins_sclk  |           | 26/3          | Y          | in    | IOL6[C]  | LVCMOS33   | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | OFF             | NA            | 3.3       
 spi_pins_mosi  |           | 12/1          | Y          | in    | IOR6[F]  | LVCMOS33   | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | OFF             | NA            | 3.3       
 spi_pins_ss    |           | 10/1          | Y          | in    | IOR6[H]  | LVCMOS33   | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | OFF             | NA            | 3.3       
-reset          |           | 6/2           | N          | in    | IOB16[A] | LVCMOS33   | NA    | DOWN      | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3       
+reset          |           | 29/3          | N          | in    | IOL7[A]  | LVCMOS33   | NA    | DOWN      | NA        | NONE       | NA         | NA        | NA         | OFF             | NA            | 3.3       
 pwm_out_ch0    |           | 1/3           | Y          | out   | IOL10[B] | LVCMOS33   | 8     | UP        | NA        | NA         | OFF        | FAST      | NA         | OFF             | NA            | 3.3       
 pwm_out_ch1    |           | 4/2           | Y          | out   | IOB11[A] | LVCMOS33   | 8     | UP        | NA        | NA         | OFF        | FAST      | NA         | NA              | NA            | 3.3       
 pwm_out_ch2    |           | 5/2           | Y          | out   | IOB11[B] | LVCMOS33   | 8     | UP        | NA        | NA         | OFF        | FAST      | NA         | NA              | NA            | 3.3       
@@ -137,14 +137,14 @@ Loc./Bank| Signal         | Dir.  | Site     | IO Type  | Drive | Pull Mode | PC
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 4/2      | pwm_out_ch1    | out   | IOB11[A] | LVCMOS33 | 8     | UP        | NA        | NA         | OFF        | FAST      | NA         | NA              | NA            | 3.3  
 5/2      | pwm_out_ch2    | out   | IOB11[B] | LVCMOS33 | 8     | UP        | NA        | NA         | OFF        | FAST      | NA         | NA              | NA            | 3.3  
-6/2      | reset          | in    | IOB16[A] | LVCMOS33 | NA    | DOWN      | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
+6/2      | -              | in    | IOB16[A] | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 24/3     | -              | in    | IOL6[A]  | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
 25/3     | -              | in    | IOL6[B]  | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
 26/3     | spi_pins_sclk  | in    | IOL6[C]  | LVCMOS33 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | OFF             | NA            | 3.3  
 27/3     | -              | in    | IOL6[D]  | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
 28/3     | -              | out   | IOL6[E]  | LVCMOS18 | 8     | UP        | NA        | NA         | OFF        | FAST      | NA         | NA              | NA            | 3.3  
-29/3     | -              | in    | IOL7[A]  | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
+29/3     | reset          | in    | IOL7[A]  | LVCMOS33 | NA    | DOWN      | NA        | NONE       | NA         | NA        | NA         | OFF             | NA            | 3.3  
 30/3     | -              | in    | IOL7[B]  | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
 32/3     | -              | in    | IOL10[A] | LVCMOS18 | NA    | UP        | NA        | NONE       | NA         | NA        | NA         | NA              | NA            | 3.3  
 1/3      | pwm_out_ch0    | out   | IOL10[B] | LVCMOS33 | 8     | UP        | NA        | NA         | OFF        | FAST      | NA         | OFF             | NA            | 3.3  

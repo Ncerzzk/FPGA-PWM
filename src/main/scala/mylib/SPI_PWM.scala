@@ -135,7 +135,7 @@ class SPI_PWM extends Component{
       val ptr = Reg(cloneOf(reg_addr)).init(0)
       val is_high_8bit = RegInit(True)
       val ss_has_rised = RegInit(False)
-
+      val temp_data = Reg(Bits(16 bits)).init(0)
 
       always{
         when(ss_sync.rise()){
@@ -165,17 +165,19 @@ class SPI_PWM extends Component{
 
           when(is_high_8bit.rise()) {
             ptr := ptr + 1
+            regs(ptr) := temp_data
           }
         }
       }
 
       val read:State = new State{
+
         whenIsActive{
           apb_operation.read_t(spi_slave_regs.data){
             rdata => {
               val rdata_low = rdata.takeLow(8)
               is_high_8bit := !is_high_8bit
-              regs(ptr) := data ## rdata_low
+              temp_data := data ## rdata_low
               data := rdata_low
               goto(wait_s)
             }
