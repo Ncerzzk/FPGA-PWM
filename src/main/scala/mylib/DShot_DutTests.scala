@@ -9,61 +9,19 @@ import spinal.lib.com.spi.{SpiSlave, SpiSlaveCtrlGenerics, SpiSlaveCtrlMemoryMap
 import spinal.lib.fsm.{State, StateFsm}
 import spinal.lib.io.TriStateOutput
 
-import scala.collection.mutable
-case class simSpiMaster(spi:SpiSlave,moduleFreq:Int,spiFreq:Int){
-  val mosi=spi.mosi
-  val sclk=spi.sclk
-  val miso=spi.miso.write
-  val ss = spi.ss
-  val sleepCnt: Int = moduleFreq / spiFreq
-
-  ss #= true
-  sclk #= false
-  mosi #= false
-  def transferSampleByte(data:Int): Int ={
-    var ret:Int=0
-    for(i <- 0 until 8 ){
-      val level = data >> (7-i) & 1
-      if(level != 0){
-        mosi #= true
-      }else{
-        mosi #= false
-      }
-      sleep(sleepCnt)  // wait sclk posedge
-      sclk #= true
-      ret <<= 1
-      if(miso.toBoolean){
-        ret |= 1
-      }
-      sleep(sleepCnt)
-      sclk #= false
-      sleep(sleepCnt)
-    }
-    ret
-  }
-  def transfer(dataArray: Array[Int]): mutable.Seq[Int] ={
-    val ret = ListBuffer[Int]()
-    sleep(sleepCnt)
-    ss #= false
-    sleep(sleepCnt)
-    for(data <- dataArray){
-      ret += transferSampleByte(data)
-    }
-    sleep(sleepCnt)
-    ss #= true
-    ret
-  }
-}
-object SPI_PWM_DutTests {
+object SPI_DShot_DutTests {
   def main(args: Array[String]): Unit = {
     val compile=SimConfig.withWave.withVerilator.compile {
-      val a=new SPI_PWM_Top
-      a.spi_pwm.regs.data.simPublic()
-      a.spi_pwm.spi_fsm.stateReg.simPublic()
+      val a=new SPI_DShot_Top
+      a.spi_dshot.regs.data.simPublic()
+      a.spi_dshot.spi_fsm.stateReg.simPublic()
+      a.spi_dshot.dshot.out_enables.simPublic()
+      a.spi_dshot.dshot.d_out.simPublic()
+      a.spi_dshot.dshot.reloading.simPublic()
       a
     }
 
-    def testSPIMaster(spipins:SpiSlave)=simSpiMaster(spipins,240,5)
+    def testSPIMaster(spipins:SpiSlave)=simSpiMaster(spipins,240,40)
 
     compile.doSim("test apb operation"){
       dut=>
@@ -79,13 +37,13 @@ object SPI_PWM_DutTests {
         val master = testSPIMaster(dut.spi_pins)
 
         fork{
-          //waitUntil(dut.spi_pwm.inited.toBoolean)
+          //waitUntil(dut.spi_dshot.inited.toBoolean)
           sleep(100)
           master.transfer(Array(1,0xff,3))
           sleep(100)
         }.join()
 
-        assert(dut.spi_pwm.regs.data.getBigInt(0)==0xff03)
+        assert(dut.spi_dshot.regs.data.getBigInt(0)==0xff03)
     }
 
     def spi_read_test(addr:Int): Unit ={
@@ -95,7 +53,9 @@ object SPI_PWM_DutTests {
           val master = testSPIMaster(dut.spi_pins)
           val data = scala.util.Random.nextInt(65536)
           var ret:Seq[Int] = Array[Int]()
-          dut.spi_pwm.regs.data.setBigInt(addr,data)
+
+          val true_addr = dut.spi_dshot.regs.decode(addr)
+          dut.spi_dshot.regs.data.setBigInt(true_addr,data)
 
           fork{
             sleep(50)
@@ -103,6 +63,8 @@ object SPI_PWM_DutTests {
             sleep(50)
 
           }.join()
+          val result = ret(1)<<8 | ret(2)
+          println(f"target:$data val:$result")
           assert((ret(1)<<8 | ret(2)) == data)
       }
     }
@@ -117,7 +79,7 @@ object SPI_PWM_DutTests {
         dut=>
           dut.clockDomain.forkStimulus(period = 2)
           val master = testSPIMaster(dut.spi_pins)
-          import dut.spi_pwm.spi_fsm._
+          import dut.spi_dshot.spi_fsm._
           var has_pull_up_ss=false
           forkSensitive(stateReg){
             if(!has_pull_up_ss && enumOf(state)==stateReg.toEnum){
@@ -137,8 +99,8 @@ object SPI_PWM_DutTests {
           }.join()
       }
     }
-    spi_corrupt_test(compile.dut.spi_pwm.spi_fsm.start_transfer)
-    spi_corrupt_test(compile.dut.spi_pwm.spi_fsm.being_written)
+    spi_corrupt_test(compile.dut.spi_dshot.spi_fsm.start_transfer)
+    spi_corrupt_test(compile.dut.spi_dshot.spi_fsm.being_written)
 
     compile.doSim("continuous write test"){
       dut=>
@@ -148,9 +110,11 @@ object SPI_PWM_DutTests {
         val ret = master.transfer(Array( 1<<1 | 1,2,3,4,5,6,7))
         dut.clockDomain.waitSampling(50)
 
-        assert(dut.spi_pwm.regs.data.getBigInt(1) == 0x0203)
-        assert(dut.spi_pwm.regs.data.getBigInt(2) == 0x0405)
-        assert(dut.spi_pwm.regs.data.getBigInt(3) == 0x0607)
+        val decode: Int=>Int = dut.spi_dshot.regs.decode
+
+        assert(dut.spi_dshot.regs.data.getBigInt(decode(1)) == 0x0203)
+        assert(dut.spi_dshot.regs.data.getBigInt(decode(2)) == 0x0405)
+        assert(dut.spi_dshot.regs.data.getBigInt(decode(3)) == 0x0607)
     }
 
     compile.doSim("read write after a corrupt write sequence"){
@@ -173,7 +137,69 @@ object SPI_PWM_DutTests {
         dut.clockDomain.waitSampling(50)
 
     }
+
+    def get_dshot_val(dut:SPI_DShot_Top,channel:Int, val1ccr:Int,predivide:Int = 1)={
+      /*
+      channel start from 0
+       */
+      var predivide_cnt=0
+      var cnt=0
+      var result = 0
+
+      waitUntil(((dut.spi_dshot.dshot.out_enables.toInt >> channel) & 1) == 1)
+      while(((dut.spi_dshot.dshot.out_enables.toInt >> channel) & 1) == 1){
+        dut.clockDomain.waitSampling()
+        if( ((dut.spi_dshot.dshot.d_out.toInt >> channel) & 1 ) == 1){
+          predivide_cnt += 1
+          if(predivide_cnt == predivide){
+            cnt += 1
+            predivide_cnt = 0
+          }
+        }
+
+        if(dut.spi_dshot.dshot.reloading.toBoolean){
+          result <<= 1
+          if(cnt == val1ccr){
+            result |= 1
+          }
+          cnt = 0
+        }
+      }
+      result
+    }
+    def dshot_test(value:Int, channel:Int,predivide:Int = 1): Unit ={
+      /*
+      channel start from 0
+       */
+      compile.doSim(f"dshot test for ${value.toHexString}"){
+        dut=>
+          dut.clockDomain.forkStimulus(period = 2)
+          val master = testSPIMaster(dut.spi_pins)
+          dut.clockDomain.waitSampling(50)
+          master.transfer(Array(0x0 << 1 | 1, 0x00, 10))  //   write 10 to period
+          dut.clockDomain.waitSampling(50)
+          master.transfer(Array(0x60 << 1 | 1,0x00, 7))  // write 7 to ccr1
+          dut.clockDomain.waitSampling(50)
+          master.transfer(Array(0x50 << 1 | 1,0x00, predivide -1 ))
+          dut.clockDomain.waitSampling(50)
+          val high = value >> 8
+          val low = value & 0xff
+          master.transfer(Array( (channel+1) << 1 | 1,high, low)) // write dshot value of channel , and trigger it
+
+          var result:Int = 0
+          fork{
+            result = get_dshot_val(dut,channel,7,predivide)
+          }
+          dut.clockDomain.waitSampling(1000 * predivide)
+          println(f"result :${result.toHexString}")
+          assert(result == value)
+      }
+    }
+
+    dshot_test(0xff00,0)
+    dshot_test(0xff00,1)
+    dshot_test(scala.util.Random.nextInt(65536),2)
+    dshot_test(scala.util.Random.nextInt(65536),3,2)
   }
 
 }
-

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE gowin-synthesis-project>
+<Project>
+    <Version>beta</Version>
+    <Device id="GW1N-1" package="QFN32" speed="5" partNumber="GW1N-LV1QN32C5/I4"/>
+    <FileList>
+        <File path="E:\projects\I2C_PWM\SPI_DShot_Top.v" type="verilog"/>
+        <File path="E:\projects\I2C_PWM\gowin_project\spi_dshot\spi_dshot\src\gowin_rpll\gowin_rpll.v" type="verilog"/>
+        <File path="E:\projects\I2C_PWM\gowin_project\spi_dshot\spi_dshot\src\gowin_osc\gowin_osc.v" type="verilog"/>
+    </FileList>
+    <OptionList>
+        <Option type="disable_insert_pad" value="0"/>
+        <Option type="dsp_balance" value="0"/>
+        <Option type="looplimit" value="2000"/>
+        <Option type="output_file" value="E:\projects\I2C_PWM\gowin_project\spi_dshot\spi_dshot\impl\gwsynthesis\spi_dshot.vg"/>
+        <Option type="print_all_synthesis_warning" value="0"/>
+        <Option type="ram_rw_check" value="1"/>
+        <Option type="top_module" value="SPI_DShot_Top"/>
+        <Option type="verilog_language" value="verilog-2001"/>
+        <Option type="vhdl_language" value="vhdl-1993"/>
+    </OptionList>
+</Project>

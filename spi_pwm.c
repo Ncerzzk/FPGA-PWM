@@ -76,6 +76,16 @@ uint16_t spi_read(int fd,uint8_t addr){
     return ret;
 }
 
+void dshot_test(int fd){
+    printf("dshott test start!\n");
+    spi_write(fd,0x00,100);
+    spi_write(fd,0x60,75);
+
+    for(int i=0; i<10;++i){
+        spi_write(fd, 0x1 ,0x1033 + i);
+        usleep(1000);
+    }
+}
 int main(int argc,char *argv[])
 {
     int fd;
@@ -105,6 +115,8 @@ int main(int argc,char *argv[])
         //spi_write(fd,i+1,5000);
         printf("addr %#lx, data:%#lx\n",i,spi_read(fd,i));
     }
+
+    dshot_test(fd);
 
     close(fd);  // 关闭 SPI 设备
 

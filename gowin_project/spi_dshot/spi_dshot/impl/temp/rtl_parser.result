@@ -1,0 +1,122 @@
+[
+ {
+  "InstFile" : "E:/projects/I2C_PWM/SPI_DShot_Top.v",
+  "InstLine" : 7,
+  "InstName" : "SPI_DShot_Top",
+  "ModuleFile" : "E:/projects/I2C_PWM/SPI_DShot_Top.v",
+  "ModuleLine" : 7,
+  "ModuleName" : "SPI_DShot_Top",
+  "SubInsts" : [
+   {
+    "InstFile" : "E:/projects/I2C_PWM/SPI_DShot_Top.v",
+    "InstLine" : 33,
+    "InstName" : "pll",
+    "ModuleFile" : "E:/projects/I2C_PWM/gowin_project/spi_dshot/spi_dshot/src/gowin_rpll/gowin_rpll.v",
+    "ModuleLine" : 9,
+    "ModuleName" : "Gowin_rPLL"
+   },
+   {
+    "InstFile" : "E:/projects/I2C_PWM/SPI_DShot_Top.v",
+    "InstLine" : 37,
+    "InstName" : "spi_dshot_1",
+    "ModuleFile" : "E:/projects/I2C_PWM/SPI_DShot_Top.v",
+    "ModuleLine" : 375,
+    "ModuleName" : "SPI_DShot",
+    "SubInsts" : [
+     {
+      "InstFile" : "E:/projects/I2C_PWM/SPI_DShot_Top.v",
+      "InstLine" : 706,
+      "InstName" : "sclk_buffercc",
+      "ModuleFile" : "E:/projects/I2C_PWM/SPI_DShot_Top.v",
+      "ModuleLine" : 2174,
+      "ModuleName" : "BufferCC"
+     },
+     {
+      "InstFile" : "E:/projects/I2C_PWM/SPI_DShot_Top.v",
+      "InstLine" : 712,
+      "InstName" : "mosi_buffercc",
+      "ModuleFile" : "E:/projects/I2C_PWM/SPI_DShot_Top.v",
+      "ModuleLine" : 2174,
+      "ModuleName" : "BufferCC"
+     },
+     {
+      "InstFile" : "E:/projects/I2C_PWM/SPI_DShot_Top.v",
+      "InstLine" : 718,
+      "InstName" : "ss_buffercc",
+      "ModuleFile" : "E:/projects/I2C_PWM/SPI_DShot_Top.v",
+      "ModuleLine" : 2142,
+      "ModuleName" : "BufferCC_5"
+     }
+    ]
+   },
+   {
+    "InstFile" : "E:/projects/I2C_PWM/SPI_DShot_Top.v",
+    "InstLine" : 53,
+    "InstName" : "spi_slave_ctrl",
+    "ModuleFile" : "E:/projects/I2C_PWM/SPI_DShot_Top.v",
+    "ModuleLine" : 84,
+    "ModuleName" : "Apb3SpiSlaveCtrl",
+    "SubInsts" : [
+     {
+      "InstFile" : "E:/projects/I2C_PWM/SPI_DShot_Top.v",
+      "InstLine" : 161,
+      "InstName" : "spiCtrl",
+      "ModuleFile" : "E:/projects/I2C_PWM/SPI_DShot_Top.v",
+      "ModuleLine" : 2005,
+      "ModuleName" : "SpiSlaveCtrl",
+      "SubInsts" : [
+       {
+        "InstFile" : "E:/projects/I2C_PWM/SPI_DShot_Top.v",
+        "InstLine" : 2058,
+        "InstName" : "io_spi_sclk_buffercc",
+        "ModuleFile" : "E:/projects/I2C_PWM/SPI_DShot_Top.v",
+        "ModuleLine" : 2174,
+        "ModuleName" : "BufferCC"
+       },
+       {
+        "InstFile" : "E:/projects/I2C_PWM/SPI_DShot_Top.v",
+        "InstLine" : 2064,
+        "InstName" : "io_spi_ss_buffercc",
+        "ModuleFile" : "E:/projects/I2C_PWM/SPI_DShot_Top.v",
+        "ModuleLine" : 2174,
+        "ModuleName" : "BufferCC"
+       },
+       {
+        "InstFile" : "E:/projects/I2C_PWM/SPI_DShot_Top.v",
+        "InstLine" : 2070,
+        "InstName" : "io_spi_mosi_buffercc",
+        "ModuleFile" : "E:/projects/I2C_PWM/SPI_DShot_Top.v",
+        "ModuleLine" : 2174,
+        "ModuleName" : "BufferCC"
+       }
+      ]
+     },
+     {
+      "InstFile" : "E:/projects/I2C_PWM/SPI_DShot_Top.v",
+      "InstLine" : 179,
+      "InstName" : "bridge_txLogic_streamUnbuffered_queueWithAvailability",
+      "ModuleFile" : "E:/projects/I2C_PWM/SPI_DShot_Top.v",
+      "ModuleLine" : 1826,
+      "ModuleName" : "StreamFifo"
+     },
+     {
+      "InstFile" : "E:/projects/I2C_PWM/SPI_DShot_Top.v",
+      "InstLine" : 192,
+      "InstName" : "spiCtrl_io_rx_takeWhen_queueWithOccupancy",
+      "ModuleFile" : "E:/projects/I2C_PWM/SPI_DShot_Top.v",
+      "ModuleLine" : 1826,
+      "ModuleName" : "StreamFifo"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "InstFile" : "E:/projects/I2C_PWM/gowin_project/spi_dshot/spi_dshot/src/gowin_osc/gowin_osc.v",
+  "InstLine" : 9,
+  "InstName" : "Gowin_OSC",
+  "ModuleFile" : "E:/projects/I2C_PWM/gowin_project/spi_dshot/spi_dshot/src/gowin_osc/gowin_osc.v",
+  "ModuleLine" : 9,
+  "ModuleName" : "Gowin_OSC"
+ }
+]

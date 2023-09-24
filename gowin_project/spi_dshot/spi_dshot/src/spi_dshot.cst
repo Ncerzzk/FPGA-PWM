@@ -1,0 +1,36 @@
+//Copyright (C)2014-2022 Gowin Semiconductor Corporation.
+//All rights reserved. 
+//File Title: Physical Constraints file
+//GOWIN Version: 1.9.8.06-1
+//Part Number: GW1N-LV1QN32C5/I4
+//Device: GW1N-1
+//Created Time: Sun 09 24 12:43:48 2023
+
+IO_LOC "d_out[7]" 16;
+IO_PORT "d_out[7]" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_LOC "d_out[6]" 20;
+IO_PORT "d_out[6]" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_LOC "d_out[5]" 17;
+IO_PORT "d_out[5]" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_LOC "d_out[4]" 9;
+IO_PORT "d_out[4]" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_LOC "d_out[3]" 8;
+IO_PORT "d_out[3]" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_LOC "d_out[2]" 5;
+IO_PORT "d_out[2]" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_LOC "d_out[1]" 4;
+IO_PORT "d_out[1]" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_LOC "d_out[0]" 1;
+IO_PORT "d_out[0]" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_LOC "spi_pins_miso" 11;
+IO_PORT "spi_pins_miso" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_LOC "reset" 29;
+IO_PORT "reset" IO_TYPE=LVCMOS33 PULL_MODE=DOWN;
+IO_LOC "spi_pins_ss" 10;
+IO_PORT "spi_pins_ss" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_LOC "spi_pins_mosi" 12;
+IO_PORT "spi_pins_mosi" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_LOC "spi_pins_sclk" 26;
+IO_PORT "spi_pins_sclk" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_LOC "clkin" 14;
+IO_PORT "clkin" IO_TYPE=LVCMOS33 PULL_MODE=UP;

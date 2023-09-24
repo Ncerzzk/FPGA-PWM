@@ -37,6 +37,15 @@ class Sequencer extends Area {
   })
 }
 
+class Gowin_rPLL extends BlackBox{
+  val io = new Bundle{
+    val clkin = in Bool()
+    val clkout = out Bool()
+  }
+  addRTLPath("gowin_project/spi_dshot/spi_dshot/src/gowin_rpll/gowin_rpll.v")
+  noIoPrefix()
+}
+
 class Gowin_OSC extends BlackBox{
   val io = new Bundle {
     val oscout = out Bool()

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module name="SPI_DShot_Top">
+    <SubModule name="pll"/>
+    <SubModule name="spi_dshot_1" Register="331" Alu="37" Lut="805">
+        <SubModule name="sclk_buffercc" Register="1"/>
+        <SubModule name="mosi_buffercc" Register="1"/>
+        <SubModule name="ss_buffercc" Register="2"/>
+    </SubModule>
+    <SubModule name="spi_slave_ctrl" Register="10" Lut="15">
+        <SubModule name="spiCtrl" Register="15" Lut="16">
+            <SubModule name="io_spi_sclk_buffercc" Register="1"/>
+            <SubModule name="io_spi_ss_buffercc" Register="2"/>
+            <SubModule name="io_spi_mosi_buffercc" Register="1"/>
+        </SubModule>
+        <SubModule name="bridge_txLogic_streamUnbuffered_queueWithAvailability" Register="46" Lut="32"/>
+        <SubModule name="spiCtrl_io_rx_takeWhen_queueWithOccupancy" Register="46" Lut="30"/>
+    </SubModule>
+</Module>

@@ -3,6 +3,7 @@ package mylib
 import mylib.PWMArea.getPWMOutInterfacec
 import spinal.core._
 import spinal.core.sim._
+import spinal.lib.{Counter, StreamFifo}
 
 import scala.collection.immutable
 import scala.collection.mutable.ListBuffer
@@ -30,6 +31,7 @@ object PWMArea{
     val ccrs_regs:ListBuffer[Bits]=ListBuffer()
     val pwm_channel_map_regs:ListBuffer[Bits]=ListBuffer()
     val subpwm_period_regs:ListBuffer[Bits]=ListBuffer()
+
 
     subpwm_period_regs+=regs(0)
 
@@ -145,7 +147,6 @@ class PWMArea(val regs:RegMem,channel_num:Int=4, sub_PWM_num:Int=2,timeout_ext:B
 class PWMTestComponent extends Component{
   val regs=new RegMem(16 bits,16)
   val pwm = new PWMArea(regs,8,2)
-
 }
 
 object PWM_DutTests {

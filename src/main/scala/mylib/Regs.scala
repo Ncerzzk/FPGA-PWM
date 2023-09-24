@@ -8,6 +8,7 @@ import scala.collection.mutable
 case class SimpleReg(name:String, size:Int=4,desc:String=""){}
 
 class RegMem(bitcount:BitCount,size:Int) extends Area{
+
   val data = Mem(Bits(bitcount),size).init(Array.fill(size)(B(0)))
   //val data = Vec(Reg(Bits(bitcount)).init(0),size)
 
