@@ -16,7 +16,7 @@ object DShot{
     regs.add(0x60,"value1ccr","")
     val val1ccr = regs(0x60).asUInt
 
-    val val0ccr: UInt = period - val1ccr + 0  // why?
+    val val0ccr: UInt = val1ccr |>> 1  // why?
 
     regs.add(0x50,"config","")
     val config = regs(0x50)

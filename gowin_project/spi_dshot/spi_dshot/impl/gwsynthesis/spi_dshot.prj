@@ -6,7 +6,6 @@
     <FileList>
         <File path="E:\projects\I2C_PWM\SPI_DShot_Top.v" type="verilog"/>
         <File path="E:\projects\I2C_PWM\gowin_project\spi_dshot\spi_dshot\src\gowin_rpll\gowin_rpll.v" type="verilog"/>
-        <File path="E:\projects\I2C_PWM\gowin_project\spi_dshot\spi_dshot\src\gowin_osc\gowin_osc.v" type="verilog"/>
     </FileList>
     <OptionList>
         <Option type="disable_insert_pad" value="0"/>

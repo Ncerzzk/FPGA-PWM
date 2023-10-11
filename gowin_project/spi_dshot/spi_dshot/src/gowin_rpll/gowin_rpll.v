@@ -4,7 +4,7 @@
 //GOWIN Version: V1.9.8.06-1
 //Part Number: GW1N-LV1QN32C5/I4
 //Device: GW1N-1
-//Created Time: Sat Sep 23 21:01:50 2023
+//Created Time: Wed Sep 27 20:30:39 2023
 
 module Gowin_rPLL (clkout, clkin);
 

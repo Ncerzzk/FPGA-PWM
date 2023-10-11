@@ -10,7 +10,7 @@ import spinal.lib.fsm.{State, StateFsm}
 import spinal.lib.io.TriStateOutput
 
 import scala.collection.mutable
-case class simSpiMaster(spi:SpiSlave,moduleFreq:Int,spiFreq:Int){
+case class simSpiMaster(spi:SpiSlave,moduleFreq:Int,spiFreq:Int,spi_mode:Int=0){
   val mosi=spi.mosi
   val sclk=spi.sclk
   val miso=spi.miso.write
@@ -18,25 +18,37 @@ case class simSpiMaster(spi:SpiSlave,moduleFreq:Int,spiFreq:Int){
   val sleepCnt: Int = moduleFreq / spiFreq
 
   ss #= true
-  sclk #= false
   mosi #= false
+  sclk_init()
+
+  def sclk_init()={
+    if(spi_mode == 0 || spi_mode == 1){
+      sclk #= false
+    }else{
+      sclk #= true
+    }
+  }
   def transferSampleByte(data:Int): Int ={
     var ret:Int=0
+    sclk_init()
     for(i <- 0 until 8 ){
       val level = data >> (7-i) & 1
+      ret <<= 1
       if(level != 0){
         mosi #= true
       }else{
         mosi #= false
       }
       sleep(sleepCnt)  // wait sclk posedge
-      sclk #= true
-      ret <<= 1
-      if(miso.toBoolean){
+      sclk #= !sclk.toBoolean
+      if((spi_mode == 0 || spi_mode == 2) && miso.toBoolean){
         ret |= 1
       }
       sleep(sleepCnt)
-      sclk #= false
+      sclk #= !sclk.toBoolean
+      if((spi_mode == 1 || spi_mode == 3) && miso.toBoolean){
+        ret |= 1
+      }
       sleep(sleepCnt)
     }
     ret

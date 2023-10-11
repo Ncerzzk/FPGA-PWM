@@ -6,7 +6,6 @@
     <Device name="GW1N-1" pn="GW1N-LV1QN32C5/I4">gw1n1-003</Device>
     <FileList>
         <File path="E:/projects/I2C_PWM/SPI_DShot_Top.v" type="file.verilog" enable="1"/>
-        <File path="src/gowin_osc/gowin_osc.v" type="file.verilog" enable="1"/>
         <File path="src/gowin_rpll/gowin_rpll.v" type="file.verilog" enable="1"/>
         <File path="src/spi_dshot.cst" type="file.cst" enable="1"/>
         <File path="src/spi_dshot.sdc" type="file.sdc" enable="1"/>

@@ -12,7 +12,7 @@ import spinal.lib.io.TriStateOutput
 object SPI_DShot_DutTests {
   def main(args: Array[String]): Unit = {
     val compile=SimConfig.withWave.withVerilator.compile {
-      val a=new SPI_DShot_Top
+      val a=new SPI_DShot_Top(false,3)
       a.spi_dshot.regs.data.simPublic()
       a.spi_dshot.spi_fsm.stateReg.simPublic()
       a.spi_dshot.dshot.out_enables.simPublic()
@@ -21,7 +21,7 @@ object SPI_DShot_DutTests {
       a
     }
 
-    def testSPIMaster(spipins:SpiSlave)=simSpiMaster(spipins,240,40)
+    def testSPIMaster(spipins:SpiSlave)=simSpiMaster(spipins,60,5,3)
 
     compile.doSim("test apb operation"){
       dut=>

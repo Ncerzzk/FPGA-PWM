@@ -7,12 +7,15 @@ import spinal.lib.com.spi.{Apb3SpiSlaveCtrl, SpiSlave, SpiSlaveCtrlGenerics, Spi
 import spinal.lib.fsm.{EntryPoint, State, StateFsm, StateMachine}
 import spinal.lib.io.InOutWrapper
 
-class SPI_DShot_Top(forfpga:Boolean = false) extends Component{
+class SPI_DShot_Top(forfpga:Boolean = false,spi_mode:Int = 0) extends Component{
   val clkin = in Bool()
   val spi_pins = master(SpiSlave())
 
   val pll = forfpga.generate(new Gowin_rPLL)
-  pll.io.clkin := clkin
+  if(forfpga){
+    pll.io.clkin := clkin
+  }
+
   // val osc = forfpga.generate(new Gowin_OSC)
 
   var myClockDomain = ClockDomain.current
@@ -21,7 +24,7 @@ class SPI_DShot_Top(forfpga:Boolean = false) extends Component{
   }
 
   val spi_dshot =myClockDomain{
-    new SPI_DShot(8)
+    new SPI_DShot(8,spi_mode)
   }
   val spi_slave_ctrl =myClockDomain{
     Apb3SpiSlaveCtrl(SpiSlaveCtrlMemoryMappedConfig(SpiSlaveCtrlGenerics(),3,3))
@@ -43,11 +46,11 @@ class SPI_DShot_Top(forfpga:Boolean = false) extends Component{
 object SPI_DShot_Gen_For_FPGA {
   def main(args: Array[String]) {
     //InOutWrapper
-    SpinalVerilog(InOutWrapper(new SPI_DShot_Top(true))).printPruned()
+    SpinalVerilog(InOutWrapper(new SPI_DShot_Top(true,3))).printPruned()
   }
 }
 
-class SPI_DShot(channel_num:Int) extends Component{
+class SPI_DShot(channel_num:Int,spi_mode:Int=0) extends Component{
   import utils._
   val apb_m = master(Apb3(Apb3SpiSlaveCtrl.getApb3Config))
   val interrupt = in Bool()
@@ -81,7 +84,7 @@ class SPI_DShot(channel_num:Int) extends Component{
     val sclk_count = Counter(8)
     val sclk_cnt_start = RegInit(False)
     val temp_rx = Reg(Bits(8 bits)).init(0)
-    val sclk_rise= sclk_sync.rise()
+    val sclk_valid= if(spi_mode == 0 || spi_mode==3) sclk_sync.rise() else sclk_sync.fall()
 
     val ss_has_fallen = RegInit(False)
 
@@ -102,7 +105,7 @@ class SPI_DShot(channel_num:Int) extends Component{
       SCLK pulses have already passed by the time we reach start_transfer.
       Therefore, we need to start receiving temp_rx as soon as SS goes low.
        */
-      when((ss_has_fallen || isActive(start_transfer)) && sclk_rise){
+      when((ss_has_fallen || isActive(start_transfer)) && sclk_valid){
         sclk_count.increment()
         temp_rx := (temp_rx ## mosi_sync).resized
       }
@@ -112,7 +115,7 @@ class SPI_DShot(channel_num:Int) extends Component{
 
     idle.whenIsActive {
       new Sequencer()
-        .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.config,0x00)) // set cpol and cpha
+        .addStep(apb_operation.write_t_withoutcallback(spi_slave_regs.config,spi_mode)) // set cpol and cpha
         .addStep {
           ss_has_fallen := False
           ss_has_fallen
@@ -144,7 +147,7 @@ class SPI_DShot(channel_num:Int) extends Component{
         .addStep{
           readwrite_bit := temp_rx.lsb   // save read write bit here, because we will wait one more sclk to jump to next state(being written or idle)
           sclk_count.value === U(0)}
-        .addStep(sclk_rise)   // wait one more sclk, to fix wrong interrupt assert in slow sclk case
+        .addStep(sclk_valid)   // wait one more sclk, to fix wrong interrupt assert in slow sclk case
         .addStep{
           when(readwrite_bit)(goto(being_written)).otherwise(goto(idle))
           True
